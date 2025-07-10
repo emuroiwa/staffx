@@ -8,10 +8,11 @@ export const useAuthStore = defineStore('auth', () => {
     name: 'Taylor Swift',
     email: 'taylor.swift@staffx.com',
     role: 'Admin',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
     company: 'Vertex Global'
   })
-  
+
   const isAuthenticated = ref(true)
   const loading = ref(false)
 
@@ -33,10 +34,10 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = { ...user.value, ...userData }
   }
 
-  function login(credentials) {
+  function login() {
     loading.value = true
     // Simulate API call
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         isAuthenticated.value = true
         loading.value = false
@@ -61,11 +62,11 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isAuthenticated,
     loading,
-    
+
     // Getters
     userInitials,
     userDisplayName,
-    
+
     // Actions
     setUser,
     login,

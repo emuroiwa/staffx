@@ -2,10 +2,10 @@
   <div class="min-h-screen bg-content-light dark:bg-content-dark">
     <!-- Sidebar -->
     <SidebarMenu />
-    
+
     <!-- Top Navigation -->
     <TopNav />
-    
+
     <!-- Mobile Sidebar Overlay -->
     <transition name="fade">
       <div
@@ -14,9 +14,9 @@
         class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
       ></div>
     </transition>
-    
+
     <!-- Main Content Area -->
-    <main 
+    <main
       :class="[
         'transition-all duration-300',
         themeStore.sidebarCollapsed ? 'ml-16' : 'ml-64',
@@ -28,7 +28,7 @@
         <router-view />
       </div>
     </main>
-    
+
     <!-- Loading Spinner -->
     <transition name="fade">
       <div
@@ -41,7 +41,7 @@
         </div>
       </div>
     </transition>
-    
+
     <!-- Toast Notifications -->
     <teleport to="body">
       <div class="fixed top-20 right-6 z-50 space-y-2">
@@ -60,21 +60,23 @@
             ]"
           >
             <div class="flex items-start">
-              <div :class="[
-                'flex-shrink-0 w-5 h-5 mt-0.5 mr-3',
-                {
-                  'text-green-400': toast.type === 'success',
-                  'text-red-400': toast.type === 'error',
-                  'text-yellow-400': toast.type === 'warning',
-                  'text-blue-400': toast.type === 'info'
-                }
-              ]">
+              <div
+                :class="[
+                  'flex-shrink-0 w-5 h-5 mt-0.5 mr-3',
+                  {
+                    'text-green-400': toast.type === 'success',
+                    'text-red-400': toast.type === 'error',
+                    'text-yellow-400': toast.type === 'warning',
+                    'text-blue-400': toast.type === 'info'
+                  }
+                ]"
+              >
                 <CheckCircle v-if="toast.type === 'success'" class="w-5 h-5" />
                 <XCircle v-else-if="toast.type === 'error'" class="w-5 h-5" />
                 <AlertTriangle v-else-if="toast.type === 'warning'" class="w-5 h-5" />
                 <Info v-else class="w-5 h-5" />
               </div>
-              
+
               <div class="flex-1">
                 <p class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ toast.title }}
@@ -83,7 +85,7 @@
                   {{ toast.message }}
                 </p>
               </div>
-              
+
               <button
                 @click="removeToast(toast.id)"
                 class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -99,23 +101,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
-import { useAuthStore } from '@/stores/auth'
 import SidebarMenu from './SidebarMenu.vue'
 import TopNav from './TopNav.vue'
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-  X
-} from 'lucide-vue-next'
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-vue-next'
 
 const route = useRoute()
 const themeStore = useThemeStore()
-const authStore = useAuthStore()
 
 // Reactive state
 const loading = ref(false)
@@ -138,9 +132,9 @@ function addToast(toast) {
     duration: 4000,
     ...toast
   }
-  
+
   toasts.value.push(newToast)
-  
+
   // Auto remove after duration
   setTimeout(() => {
     removeToast(id)
@@ -157,7 +151,7 @@ function removeToast(id) {
 // Global event listeners for toast notifications
 function setupGlobalToasts() {
   // You can emit these events from anywhere in your app
-  window.addEventListener('show-toast', (event) => {
+  window.addEventListener('show-toast', event => {
     addToast(event.detail)
   })
 }
@@ -170,11 +164,14 @@ function handleResize() {
 }
 
 // Watch for route changes to hide mobile sidebar
-watch(() => route.path, () => {
-  if (showMobileSidebar.value) {
-    showMobileSidebar.value = false
+watch(
+  () => route.path,
+  () => {
+    if (showMobileSidebar.value) {
+      showMobileSidebar.value = false
+    }
   }
-})
+)
 
 // Loading state management
 function setLoading(state) {
@@ -191,13 +188,13 @@ defineExpose({
 onMounted(() => {
   // Initialize theme
   themeStore.initializeTheme()
-  
+
   // Setup global toast system
   setupGlobalToasts()
-  
+
   // Add resize listener
   window.addEventListener('resize', handleResize)
-  
+
   // Cleanup on unmount
   return () => {
     window.removeEventListener('resize', handleResize)
@@ -206,11 +203,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 

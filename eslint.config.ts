@@ -1,34 +1,51 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
-import pluginVitest from '@vitest/eslint-plugin'
-import pluginPlaywright from 'eslint-plugin-playwright'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+import * as parserVue from 'vue-eslint-parser'
+import configPrettier from 'eslint-config-prettier'
+import pluginPrettier from 'eslint-plugin-prettier'
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
-
-export default defineConfigWithVueTs(
+export default [
   {
     name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
+    files: ['**/*.{ts,mts,tsx,vue,js,jsx}']
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+  {
+    name: 'app/files-to-ignore',
+    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**']
+  },
 
-  pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
-  
+  js.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+
   {
-    ...pluginVitest.configs.recommended,
-    files: ['src/**/__tests__/*'],
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: parserVue,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module'
+      }
+    }
   },
-  
+
   {
-    ...pluginPlaywright.configs['flat/recommended'],
-    files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module'
+    }
   },
-  skipFormatting,
-)
+
+  configPrettier,
+
+  {
+    plugins: {
+      prettier: pluginPrettier
+    },
+    rules: {
+      'prettier/prettier': 'error',
+      'vue/multi-word-component-names': 'off'
+    }
+  }
+]

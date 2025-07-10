@@ -1,5 +1,5 @@
 <template>
-  <header 
+  <header
     :class="[
       'fixed top-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30 transition-all duration-300',
       themeStore.sidebarCollapsed ? 'left-16' : 'left-64'
@@ -15,7 +15,7 @@
         >
           <Menu class="w-5 h-5" />
         </button>
-        
+
         <button
           @click="themeStore.toggleSidebar"
           class="nav-button hidden lg:flex"
@@ -37,7 +37,9 @@
       <!-- Center Section: Search -->
       <div class="flex-1 max-w-lg mx-8 hidden md:block">
         <div class="relative">
-          <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+          />
           <input
             v-model="searchQuery"
             type="text"
@@ -74,7 +76,7 @@
             aria-label="Notifications"
           >
             <Bell class="w-5 h-5" />
-            <span 
+            <span
               v-if="notificationCount > 0"
               class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
             >
@@ -99,11 +101,15 @@
                   class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 last:border-b-0"
                 >
                   <p class="text-sm text-gray-900 dark:text-white">{{ notification.title }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ notification.time }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{ notification.time }}
+                  </p>
                 </div>
               </div>
               <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                <button class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                <button
+                  class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                >
                   View all notifications
                 </button>
               </div>
@@ -143,10 +149,12 @@
               @click.stop
             >
               <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ authStore.user?.name }}</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ authStore.user?.name }}
+                </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ authStore.user?.email }}</p>
               </div>
-              
+
               <button
                 v-for="item in userMenuItems"
                 :key="item.name"
@@ -169,7 +177,9 @@
         class="md:hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700"
       >
         <div class="relative">
-          <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+          />
           <input
             v-model="searchQuery"
             type="text"
@@ -191,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
@@ -281,13 +291,8 @@ function closeAllDropdowns() {
   showUserMenu.value = false
 }
 
-// Handle click outside
-function handleClickOutside(event) {
-  // This will be handled by the overlay div
-}
-
 onMounted(() => {
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeAllDropdowns()
       showMobileSearch.value = false
@@ -297,7 +302,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dropdown-enter-active, .dropdown-leave-active {
+.dropdown-enter-active,
+.dropdown-leave-active {
   transition: all 0.2s ease;
 }
 
@@ -311,7 +317,8 @@ onMounted(() => {
   transform: translateY(-10px);
 }
 
-.slide-down-enter-active, .slide-down-leave-active {
+.slide-down-enter-active,
+.slide-down-leave-active {
   transition: all 0.3s ease;
 }
 

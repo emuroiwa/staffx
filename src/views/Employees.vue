@@ -3,9 +3,7 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Employees
-        </h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Manage your team members and their information.
         </p>
@@ -30,11 +28,15 @@
 
     <!-- Filters and Search -->
     <div class="card p-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+      <div
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4"
+      >
         <!-- Search -->
         <div class="flex-1 max-w-md">
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            />
             <input
               v-model="searchQuery"
               type="text"
@@ -89,19 +91,29 @@
                 @click="column.sortable && sortBy(column.key)"
                 :class="[
                   'px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider',
-                  column.sortable ? 'cursor-pointer hover:text-gray-700 dark:hover:text-gray-300' : ''
+                  column.sortable
+                    ? 'cursor-pointer hover:text-gray-700 dark:hover:text-gray-300'
+                    : ''
                 ]"
               >
                 <div class="flex items-center space-x-1">
                   <span>{{ column.label }}</span>
                   <template v-if="column.sortable">
-                    <ChevronUp v-if="sortConfig.key === column.key && sortConfig.direction === 'asc'" class="w-4 h-4" />
-                    <ChevronDown v-else-if="sortConfig.key === column.key && sortConfig.direction === 'desc'" class="w-4 h-4" />
+                    <ChevronUp
+                      v-if="sortConfig.key === column.key && sortConfig.direction === 'asc'"
+                      class="w-4 h-4"
+                    />
+                    <ChevronDown
+                      v-else-if="sortConfig.key === column.key && sortConfig.direction === 'desc'"
+                      class="w-4 h-4"
+                    />
                     <ArrowUpDown v-else class="w-4 h-4 opacity-50" />
                   </template>
                 </div>
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Actions
               </th>
             </tr>
@@ -139,12 +151,16 @@
                 {{ formatDate(employee.joiningDate) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="[
-                  'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                  employee.level === 'Full-Time' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                  employee.level === 'Part-Time' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                ]">
+                <span
+                  :class="[
+                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+                    employee.level === 'Full-Time'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      : employee.level === 'Part-Time'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                  ]"
+                >
                   {{ employee.level }}
                 </span>
               </td>
@@ -176,10 +192,13 @@
       </div>
 
       <!-- Pagination -->
-      <div class="bg-white dark:bg-gray-900 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-900 px-6 py-3 border-t border-gray-200 dark:border-gray-700"
+      >
         <div class="flex items-center justify-between">
           <div class="text-sm text-gray-500 dark:text-gray-400">
-            Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ filteredEmployees.length }} employees
+            Showing {{ startIndex + 1 }} to {{ endIndex }} of
+            {{ filteredEmployees.length }} employees
           </div>
           <div class="flex items-center space-x-2">
             <button
@@ -211,12 +230,12 @@
         @click.self="showAddEmployeeModal = false"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto"
+        >
           <div class="p-6">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                Add New Employee
-              </h2>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Add New Employee</h2>
               <button
                 @click="showAddEmployeeModal = false"
                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -308,7 +327,9 @@
                 </div>
               </div>
 
-              <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div
+                class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700"
+              >
                 <button
                   type="button"
                   @click="showAddEmployeeModal = false"
@@ -389,7 +410,8 @@ const employees = ref([
     role: 'UX/UI Designer',
     level: 'Full-Time',
     joiningDate: '2025-03-23',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   },
   {
     id: 2,
@@ -399,7 +421,8 @@ const employees = ref([
     role: 'Front End Dev',
     level: 'Full-Time',
     joiningDate: '2025-02-12',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   },
   {
     id: 3,
@@ -409,7 +432,8 @@ const employees = ref([
     role: 'Human Resource',
     level: 'Freelance',
     joiningDate: '2025-02-28',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   },
   {
     id: 4,
@@ -419,7 +443,8 @@ const employees = ref([
     role: 'Back End Dev',
     level: 'Internship',
     joiningDate: '2025-01-04',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   },
   {
     id: 5,
@@ -429,7 +454,8 @@ const employees = ref([
     role: 'Marketing Manager',
     level: 'Full-Time',
     joiningDate: '2024-12-15',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   },
   {
     id: 6,
@@ -439,7 +465,8 @@ const employees = ref([
     role: 'Financial Analyst',
     level: 'Part-Time',
     joiningDate: '2024-11-08',
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
+    avatar:
+      'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'
   }
 ])
 
@@ -462,11 +489,12 @@ const filteredEmployees = computed(() => {
   // Apply search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(emp =>
-      emp.name.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query) ||
-      emp.department.toLowerCase().includes(query) ||
-      emp.role.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      emp =>
+        emp.name.toLowerCase().includes(query) ||
+        emp.email.toLowerCase().includes(query) ||
+        emp.department.toLowerCase().includes(query) ||
+        emp.role.toLowerCase().includes(query)
     )
   }
 
@@ -575,22 +603,17 @@ function addEmployee() {
     ...newEmployee,
     avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 100000000000}?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80`
   }
-  
+
   employees.value.unshift(employee)
-  
+
   // Reset form
   Object.keys(newEmployee).forEach(key => {
     newEmployee[key] = ''
   })
-  
-  showAddEmployeeModal.value = false
-  
-  console.log('Employee added:', employee)
-}
 
-// Reset current page when filters change
-function resetPagination() {
-  currentPage.value = 1
+  showAddEmployeeModal.value = false
+
+  console.log('Employee added:', employee)
 }
 
 // Watch for filter changes

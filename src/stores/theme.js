@@ -7,8 +7,8 @@ export const useThemeStore = defineStore('theme', () => {
   const sidebarCollapsed = ref(false)
 
   // Getters
-  const theme = computed(() => isDark.value ? 'dark' : 'light')
-  const sidebarWidth = computed(() => sidebarCollapsed.value ? 'w-16' : 'w-64')
+  const theme = computed(() => (isDark.value ? 'dark' : 'light'))
+  const sidebarWidth = computed(() => (sidebarCollapsed.value ? 'w-16' : 'w-64'))
 
   // Actions
   function toggleTheme() {
@@ -45,7 +45,7 @@ export const useThemeStore = defineStore('theme', () => {
     // Check localStorage for saved theme preference
     const savedTheme = localStorage.getItem('theme')
     const savedSidebarState = localStorage.getItem('sidebarCollapsed')
-    
+
     if (savedTheme) {
       setTheme(savedTheme)
     } else {
@@ -65,11 +65,11 @@ export const useThemeStore = defineStore('theme', () => {
     // State
     isDark,
     sidebarCollapsed,
-    
+
     // Getters
     theme,
     sidebarWidth,
-    
+
     // Actions
     toggleTheme,
     setTheme,

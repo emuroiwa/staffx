@@ -66,7 +66,7 @@ router.beforeEach((to, from, next) => {
   // Set page title
   const title = to.meta?.title ? `${to.meta.title} | StaffX` : 'StaffX'
   document.title = title
-  
+
   next()
 })
 

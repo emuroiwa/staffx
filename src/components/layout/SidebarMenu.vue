@@ -1,19 +1,21 @@
 <template>
-  <div 
+  <div
     :class="[
       'fixed left-0 top-0 h-full bg-sidebar-light dark:bg-sidebar-dark border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40',
       themeStore.sidebarCollapsed ? 'w-16' : 'w-64'
     ]"
   >
     <!-- Logo Section -->
-    <div class="flex items-center justify-center h-16 border-b border-gray-200 dark:border-gray-700">
+    <div
+      class="flex items-center justify-center h-16 border-b border-gray-200 dark:border-gray-700"
+    >
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
           <Building2 class="w-5 h-5 text-white" />
         </div>
         <transition name="fade">
-          <span 
-            v-if="!themeStore.sidebarCollapsed" 
+          <span
+            v-if="!themeStore.sidebarCollapsed"
             class="text-xl font-bold text-gray-900 dark:text-white"
           >
             StaffX
@@ -25,8 +27,8 @@
     <!-- User Info Section -->
     <div class="p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center space-x-3">
-        <img 
-          :src="authStore.user?.avatar" 
+        <img
+          :src="authStore.user?.avatar"
           :alt="authStore.user?.name"
           class="w-8 h-8 rounded-full object-cover"
         />
@@ -52,25 +54,16 @@
         v-slot="{ isActive }"
         class="block"
       >
-        <div 
-          :class="[
-            'sidebar-item group',
-            isActive ? 'active' : 'text-gray-700 dark:text-gray-300'
-          ]"
+        <div
+          :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
           :title="themeStore.sidebarCollapsed ? item.title : ''"
         >
-          <component 
-            :is="item.icon" 
-            :class="[
-              'w-5 h-5 flex-shrink-0',
-              themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3'
-            ]"
+          <component
+            :is="item.icon"
+            :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']"
           />
           <transition name="fade">
-            <span 
-              v-if="!themeStore.sidebarCollapsed"
-              class="text-sm font-medium"
-            >
+            <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
               {{ item.title }}
             </span>
           </transition>
@@ -88,19 +81,16 @@
         ]"
         :title="themeStore.sidebarCollapsed ? 'Toggle Theme' : ''"
       >
-        <Sun v-if="themeStore.isDark" :class="[
-          'w-5 h-5 flex-shrink-0',
-          themeStore.sidebarCollapsed ? '' : 'mr-3'
-        ]" />
-        <Moon v-else :class="[
-          'w-5 h-5 flex-shrink-0',
-          themeStore.sidebarCollapsed ? '' : 'mr-3'
-        ]" />
+        <Sun
+          v-if="themeStore.isDark"
+          :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? '' : 'mr-3']"
+        />
+        <Moon
+          v-else
+          :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? '' : 'mr-3']"
+        />
         <transition name="fade">
-          <span 
-            v-if="!themeStore.sidebarCollapsed"
-            class="text-sm font-medium"
-          >
+          <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
             {{ themeStore.isDark ? 'Light Mode' : 'Dark Mode' }}
           </span>
         </transition>
@@ -114,17 +104,9 @@
         ]"
         :title="themeStore.sidebarCollapsed ? 'Logout' : ''"
       >
-        <LogOut :class="[
-          'w-5 h-5 flex-shrink-0',
-          themeStore.sidebarCollapsed ? '' : 'mr-3'
-        ]" />
+        <LogOut :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? '' : 'mr-3']" />
         <transition name="fade">
-          <span 
-            v-if="!themeStore.sidebarCollapsed"
-            class="text-sm font-medium"
-          >
-            Logout
-          </span>
+          <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium"> Logout </span>
         </transition>
       </button>
     </div>
@@ -133,20 +115,10 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
-import { 
-  Building2, 
-  Home, 
-  Users, 
-  CreditCard, 
-  Sun, 
-  Moon, 
-  LogOut 
-} from 'lucide-vue-next'
+import { Building2, Home, Users, CreditCard, Sun, Moon, LogOut } from 'lucide-vue-next'
 
-const router = useRouter()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 
@@ -173,11 +145,13 @@ const menuItems = computed(() => [
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

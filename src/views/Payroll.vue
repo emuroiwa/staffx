@@ -3,15 +3,15 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Payroll Management
-        </h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Payroll Management</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Process and manage employee payroll for this year.
         </p>
       </div>
       <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-        <select class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <select
+          class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
           <option>This Year</option>
           <option>Last Year</option>
           <option>Custom Range</option>
@@ -28,11 +28,7 @@
 
     <!-- Payroll Overview Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div
-        v-for="metric in payrollMetrics"
-        :key="metric.title"
-        class="metric-card"
-      >
+      <div v-for="metric in payrollMetrics" :key="metric.title" class="metric-card">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -42,22 +38,13 @@
               {{ metric.value }}
             </p>
           </div>
-          <div :class="[
-            'p-3 rounded-full',
-            metric.iconBg
-          ]">
-            <component :is="metric.icon" :class="[
-              'w-5 h-5',
-              metric.iconColor
-            ]" />
+          <div :class="['p-3 rounded-full', metric.iconBg]">
+            <component :is="metric.icon" :class="['w-5 h-5', metric.iconColor]" />
           </div>
         </div>
         <div class="mt-4">
           <div class="flex items-center">
-            <span :class="[
-              'text-sm font-medium',
-              metric.changeColor
-            ]">
+            <span :class="['text-sm font-medium', metric.changeColor]">
               {{ metric.change }}
             </span>
             <span class="ml-1 text-sm text-gray-500 dark:text-gray-400">
@@ -73,22 +60,28 @@
       <!-- Payroll Overview Chart -->
       <div class="lg:col-span-2 card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Payroll Overview
-          </h3>
-          <select class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Payroll Overview</h3>
+          <select
+            class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm"
+          >
             <option>Last 6 months</option>
             <option>Last 12 months</option>
             <option>This year</option>
           </select>
         </div>
-        
+
         <!-- Chart Container -->
-        <div class="h-80 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4">
+        <div
+          class="h-80 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4"
+        >
           <div class="text-center">
             <BarChart3 class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p class="text-lg font-medium text-gray-600 dark:text-gray-400">Monthly Payroll Trends</p>
-            <p class="text-sm text-gray-500 dark:text-gray-500">Chart visualization would appear here</p>
+            <p class="text-lg font-medium text-gray-600 dark:text-gray-400">
+              Monthly Payroll Trends
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+              Chart visualization would appear here
+            </p>
           </div>
         </div>
 
@@ -111,10 +104,8 @@
 
       <!-- Payroll Summary -->
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          Current Month
-        </h3>
-        
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Current Month</h3>
+
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-600 dark:text-gray-400">Gross Payroll</span>
@@ -152,10 +143,10 @@
     <div class="card">
       <div class="p-6 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Recent Payroll Runs
-          </h3>
-          <button class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Payroll Runs</h3>
+          <button
+            class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          >
             View All
           </button>
         </div>
@@ -165,25 +156,39 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Pay Period
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Employees
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Gross Amount
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Net Amount
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Status
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Run Date
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
                 Actions
               </th>
             </tr>
@@ -212,13 +217,18 @@
                 {{ formatCurrency(run.netAmount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="[
-                  'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                  run.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                  run.status === 'Processing' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                  run.status === 'Draft' ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' :
-                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                ]">
+                <span
+                  :class="[
+                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+                    run.status === 'Completed'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      : run.status === 'Processing'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                        : run.status === 'Draft'
+                          ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                  ]"
+                >
                   {{ run.status }}
                 </span>
               </td>
@@ -261,10 +271,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Upcoming Payroll -->
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          Upcoming Payroll
-        </h3>
-        
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Upcoming Payroll</h3>
+
         <div class="space-y-4">
           <div
             v-for="upcoming in upcomingPayroll"
@@ -293,10 +301,8 @@
 
       <!-- Tax & Compliance -->
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          Tax & Compliance
-        </h3>
-        
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Tax & Compliance</h3>
+
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">Federal Tax Withheld</span>
@@ -314,15 +320,19 @@
             <span class="text-sm text-gray-600 dark:text-gray-400">Medicare</span>
             <span class="text-sm font-medium text-gray-900 dark:text-white">$4,430</span>
           </div>
-          
+
           <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-gray-900 dark:text-white">Total Tax Liability</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white"
+                >Total Tax Liability</span
+              >
               <span class="text-lg font-semibold text-red-600 dark:text-red-400">$81,140</span>
             </div>
           </div>
 
-          <button class="w-full mt-4 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+          <button
+            class="w-full mt-4 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+          >
             Generate Tax Report
           </button>
         </div>
@@ -342,9 +352,7 @@ import {
   AlertTriangle,
   Eye,
   Download,
-  Edit,
-  Calendar,
-  FileText
+  Edit
 } from 'lucide-vue-next'
 
 // Payroll metrics

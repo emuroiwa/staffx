@@ -11,12 +11,16 @@
         </p>
       </div>
       <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-        <select class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <select
+          class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
           <option>Last 30 days</option>
           <option>Last 90 days</option>
           <option>This year</option>
         </select>
-        <button class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+        <button
+          class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+        >
           Export Report
         </button>
       </div>
@@ -24,11 +28,7 @@
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div
-        v-for="metric in metrics"
-        :key="metric.title"
-        class="metric-card"
-      >
+      <div v-for="metric in metrics" :key="metric.title" class="metric-card">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -38,21 +38,12 @@
               {{ metric.value }}
             </p>
           </div>
-          <div :class="[
-            'p-3 rounded-full',
-            metric.iconBg
-          ]">
-            <component :is="metric.icon" :class="[
-              'w-6 h-6',
-              metric.iconColor
-            ]" />
+          <div :class="['p-3 rounded-full', metric.iconBg]">
+            <component :is="metric.icon" :class="['w-6 h-6', metric.iconColor]" />
           </div>
         </div>
         <div class="mt-4 flex items-center">
-          <span :class="[
-            'text-sm font-medium',
-            metric.changeColor
-          ]">
+          <span :class="['text-sm font-medium', metric.changeColor]">
             {{ metric.change }}
           </span>
           <span class="ml-1 text-sm text-gray-500 dark:text-gray-400">
@@ -67,14 +58,14 @@
       <!-- Employee Overview Chart -->
       <div class="card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Employee Overview
-          </h3>
-          <button class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Employee Overview</h3>
+          <button
+            class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          >
             View Details
           </button>
         </div>
-        
+
         <!-- Simple Chart Placeholder -->
         <div class="h-64 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
           <div class="text-center">
@@ -82,7 +73,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">Chart Visualization</p>
           </div>
         </div>
-        
+
         <!-- Chart Legend -->
         <div class="mt-4 flex items-center justify-center space-x-6">
           <div class="flex items-center">
@@ -103,28 +94,27 @@
       <!-- Recent Activity -->
       <div class="card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Recent Activity
-          </h3>
-          <button class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+          <button
+            class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          >
             View All
           </button>
         </div>
-        
+
         <div class="space-y-4">
           <div
             v-for="activity in recentActivities"
             :key="activity.id"
             class="flex items-start space-x-3"
           >
-            <div :class="[
-              'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
-              activity.iconBg
-            ]">
-              <component :is="activity.icon" :class="[
-                'w-4 h-4',
-                activity.iconColor
-              ]" />
+            <div
+              :class="[
+                'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
+                activity.iconBg
+              ]"
+            >
+              <component :is="activity.icon" :class="['w-4 h-4', activity.iconColor]" />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm text-gray-900 dark:text-white">
@@ -144,14 +134,14 @@
       <!-- Open Positions -->
       <div class="lg:col-span-2 card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Open Positions
-          </h3>
-          <button class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Open Positions</h3>
+          <button
+            class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          >
             Manage Positions
           </button>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             v-for="position in openPositions"
@@ -167,12 +157,16 @@
                   {{ position.department }}
                 </p>
               </div>
-              <span :class="[
-                'px-2 py-1 text-xs font-medium rounded-full',
-                position.urgency === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                position.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-              ]">
+              <span
+                :class="[
+                  'px-2 py-1 text-xs font-medium rounded-full',
+                  position.urgency === 'high'
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                    : position.urgency === 'medium'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                      : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                ]"
+              >
                 {{ position.urgency }} priority
               </span>
             </div>
@@ -190,10 +184,8 @@
 
       <!-- Quick Actions -->
       <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          Quick Actions
-        </h3>
-        
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Quick Actions</h3>
+
         <div class="space-y-3">
           <button
             v-for="action in quickActions"
@@ -201,14 +193,8 @@
             @click="handleQuickAction(action.name)"
             class="w-full flex items-center space-x-3 p-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <div :class="[
-              'w-8 h-8 rounded-lg flex items-center justify-center',
-              action.iconBg
-            ]">
-              <component :is="action.icon" :class="[
-                'w-4 h-4',
-                action.iconColor
-              ]" />
+            <div :class="['w-8 h-8 rounded-lg flex items-center justify-center', action.iconBg]">
+              <component :is="action.icon" :class="['w-4 h-4', action.iconColor]" />
             </div>
             <div>
               <p class="text-sm font-medium text-gray-900 dark:text-white">
@@ -226,19 +212,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
   Users,
   UserPlus,
   CreditCard,
-  TrendingUp,
   BarChart3,
   UserCheck,
   Calendar,
   FileText,
-  Settings,
   MessageSquare,
   Clock
 } from 'lucide-vue-next'
