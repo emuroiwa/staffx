@@ -1,64 +1,172 @@
-# staffx
+# StaffX - HR Management System
 
-This template should help get you started developing with Vue 3 in Vite.
+A modern, responsive HR management system built with Vue 3, Vite, and TailwindCSS. StaffX provides a comprehensive solution for managing employees, processing payroll, and tracking HR metrics with a beautiful, intuitive interface.
 
-## Recommended IDE Setup
+## ✨ Features
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **🎨 Modern UI/UX**: Clean, responsive design with dark/light mode support
+- **👥 Employee Management**: Add, edit, and manage employee profiles
+- **💰 Payroll Processing**: Comprehensive payroll management system
+- **📊 Analytics Dashboard**: Real-time insights and metrics
+- **🔍 Advanced Search**: Filter and search employees efficiently
+- **📱 Mobile Responsive**: Works perfectly on all device sizes
+- **🌙 Dark Mode**: Automatic theme switching with system preference detection
+- **⚡ Lightning Fast**: Built with Vite for optimal performance
 
-## Type Support for `.vue` Imports in TS
+## 🛠️ Tech Stack
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- **Frontend Framework**: Vue 3 (Composition API)
+- **Build Tool**: Vite
+- **Styling**: TailwindCSS
+- **State Management**: Pinia
+- **Routing**: Vue Router
+- **Icons**: Lucide Vue Next
+- **Development**: ESLint, Prettier
 
-## Customize configuration
+## 🚀 Quick Start
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Prerequisites
 
-## Project Setup
+- Node.js (v18 or higher)
+- npm or yarn
 
-```sh
-npm install
-```
+### Installation
 
-### Compile and Hot-Reload for Development
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd staffx
+   ```
 
-```sh
-npm run dev
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-### Type-Check, Compile and Minify for Production
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-```sh
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+### Build for Production
+
+```bash
 npm run build
+# or
+yarn build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## 📁 Project Structure
 
-```sh
-npm run test:unit
+```
+staffx/
+├── public/                 # Static assets
+├── src/
+│   ├── assets/            # CSS and other assets
+│   │   └── css/
+│   │       └── tailwind.css
+│   ├── components/        # Reusable components
+│   │   ├── layout/        # Layout components
+│   │   │   ├── DefaultLayout.vue
+│   │   │   ├── SidebarMenu.vue
+│   │   │   └── TopNav.vue
+│   │   └── ui/            # UI components
+│   ├── stores/            # Pinia stores
+│   │   ├── auth.js        # Authentication store
+│   │   └── theme.js       # Theme management store
+│   ├── views/             # Page components
+│   │   ├── Dashboard.vue
+│   │   ├── Employees.vue
+│   │   └── Payroll.vue
+│   ├── router/            # Vue Router configuration
+│   │   └── index.js
+│   ├── composables/       # Vue composables
+│   ├── App.vue           # Root component
+│   └── main.js           # Application entry point
+├── index.html            # HTML template
+├── package.json          # Dependencies and scripts
+├── tailwind.config.js    # TailwindCSS configuration
+├── vite.config.js        # Vite configuration
+└── README.md
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+## 🎯 Key Components
 
-```sh
-# Install browsers for the first run
-npx playwright install
+### Layout Components
 
-# When testing on CI, must build the project first
-npm run build
+- **DefaultLayout**: Main application layout with sidebar and top navigation
+- **SidebarMenu**: Collapsible sidebar with navigation and theme toggle
+- **TopNav**: Top navigation bar with search, notifications, and user menu
 
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
+### Views
+
+- **Dashboard**: Overview with metrics, charts, and quick actions
+- **Employees**: Employee management with search, filters, and CRUD operations
+- **Payroll**: Payroll processing and management interface
+
+### Stores (Pinia)
+
+- **Theme Store**: Manages dark/light mode and sidebar state
+- **Auth Store**: Handles user authentication and profile management
+
+## 🎨 Customization
+
+### Theme Colors
+
+Edit `tailwind.config.js` to customize the color palette:
+
+```javascript
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        // Your custom primary colors
+      }
+    }
+  }
+}
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Adding New Routes
 
-```sh
-npm run lint
-```
+1. Create a new view component in `src/views/`
+2. Add the route to `src/router/index.js`
+3. Update the sidebar menu in `src/components/layout/SidebarMenu.vue`
+
+## 📦 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Vue.js team for the amazing framework
+- TailwindCSS for the utility-first CSS framework
+- Lucide for the beautiful icon set
+- The open-source community for inspiration and tools
+
+---
+
+**Built with ❤️ using Vue 3, Vite, and TailwindCSS**
