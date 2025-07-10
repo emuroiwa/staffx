@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-content-light dark:bg-content-dark">
+  <div class="min-h-screen bg-content-light dark:bg-content-dark transition-colors duration-200">
     <!-- Sidebar -->
     <SidebarMenu />
 
@@ -18,14 +18,22 @@
     <!-- Main Content Area -->
     <main
       :class="[
-        'transition-all duration-300',
-        themeStore.sidebarCollapsed ? 'ml-16' : 'ml-64',
-        'pt-16'
+        'transition-all duration-300 ease-in-out',
+        'lg:' + (themeStore.sidebarCollapsed ? 'ml-16' : 'ml-64'),
+        'ml-0',
+        'pt-16',
+        'min-h-screen'
       ]"
     >
       <!-- Page Content -->
-      <div class="p-6">
-        <router-view />
+      <div class="p-4 lg:p-6">
+        <div class="max-w-7xl mx-auto">
+          <router-view v-slot="{ Component }">
+            <transition name="page" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
       </div>
     </main>
 
@@ -35,22 +43,22 @@
         v-if="loading"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-          <span class="text-gray-900 dark:text-white">Loading...</span>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-3 shadow-lg">
+          <div class="loading-spinner w-6 h-6"></div>
+          <span class="text-gray-900 dark:text-white font-medium">Loading...</span>
         </div>
       </div>
     </transition>
 
     <!-- Toast Notifications -->
     <teleport to="body">
-      <div class="fixed top-20 right-6 z-50 space-y-2">
+      <div class="fixed top-20 right-4 lg:right-6 z-50 space-y-2 max-w-sm">
         <transition-group name="toast" tag="div">
           <div
             v-for="toast in toasts"
             :key="toast.id"
             :class="[
-              'max-w-sm bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4',
+              'bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 transform transition-all duration-300',
               {
                 'border-green-200 dark:border-green-800': toast.type === 'success',
                 'border-red-200 dark:border-red-800': toast.type === 'error',
@@ -64,10 +72,10 @@
                 :class="[
                   'flex-shrink-0 w-5 h-5 mt-0.5 mr-3',
                   {
-                    'text-green-400': toast.type === 'success',
-                    'text-red-400': toast.type === 'error',
-                    'text-yellow-400': toast.type === 'warning',
-                    'text-blue-400': toast.type === 'info'
+                    'text-green-500': toast.type === 'success',
+                    'text-red-500': toast.type === 'error',
+                    'text-yellow-500': toast.type === 'warning',
+                    'text-blue-500': toast.type === 'info'
                   }
                 ]"
               >
@@ -77,7 +85,7 @@
                 <Info v-else class="w-5 h-5" />
               </div>
 
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ toast.title }}
                 </p>
@@ -88,7 +96,7 @@
 
               <button
                 @click="removeToast(toast.id)"
-                class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X class="w-4 h-4" />
               </button>
@@ -101,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import SidebarMenu from './SidebarMenu.vue'
@@ -181,28 +189,27 @@ function setLoading(state) {
 // Expose methods for child components
 defineExpose({
   addToast,
-  setLoading
+  setLoading,
+  showMobileSidebar,
+  closeMobileSidebar
 })
 
 // Initialize on mount
 onMounted(() => {
-  // Initialize theme
-  themeStore.initializeTheme()
-
   // Setup global toast system
   setupGlobalToasts()
 
   // Add resize listener
   window.addEventListener('resize', handleResize)
+})
 
-  // Cleanup on unmount
-  return () => {
-    window.removeEventListener('resize', handleResize)
-  }
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
 <style scoped>
+/* Fade transitions */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -213,6 +220,23 @@ onMounted(() => {
   opacity: 0;
 }
 
+/* Page transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Toast transitions */
 .toast-enter-active {
   transition: all 0.3s ease;
 }

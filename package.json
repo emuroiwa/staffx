@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A modern HR management system built with Vue 3, Vite, and TailwindCSS",
   "type": "module",
+  "main": "src/main.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

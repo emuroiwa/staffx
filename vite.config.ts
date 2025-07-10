@@ -12,7 +12,8 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    host: true
+    host: true,
+    open: true
   },
   build: {
     outDir: 'dist',
@@ -27,6 +28,7 @@ export default defineConfig({
     }
   },
   css: {
-    devSourcemap: true
+    devSourcemap: true,
+    postcss: './postcss.config.js'
   }
 })
