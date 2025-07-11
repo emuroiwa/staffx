@@ -24,27 +24,21 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isHoldingCompanyAdmin = computed(() => user.value?.role === 'holding_company_admin')
   
+  // Note: Subscription status will be fetched from company data via API
+  // These computed properties are kept for backward compatibility but will return null
   const hasActiveTrial = computed(() => {
-    if (!user.value?.trial_expires_at) return false
-    return new Date(user.value.trial_expires_at) > new Date()
+    // Subscription status is now managed at company level
+    return null
   })
   
   const trialDaysLeft = computed(() => {
-    if (!user.value?.trial_expires_at) return 0
-    const expiryDate = new Date(user.value.trial_expires_at)
-    const today = new Date()
-    const diffTime = expiryDate.getTime() - today.getTime()
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    // Will be fetched from company subscription data
+    return 0
   })
   
   const trialStatus = computed(() => {
-    if (!isHoldingCompanyAdmin.value) return null
-    if (!user.value?.trial_expires_at) return 'no_trial'
-    
-    const daysLeft = trialDaysLeft.value
-    if (daysLeft > 7) return 'active'
-    if (daysLeft > 0) return 'expiring_soon'
-    return 'expired'
+    // Will be fetched from company subscription data
+    return null
   })
 
   // Actions
@@ -79,6 +73,13 @@ export const useAuthStore = defineStore('auth', () => {
         const verificationError = new Error(error.response.data.message)
         ;(verificationError as any).requiresVerification = true
         throw verificationError
+      }
+      
+      // Check if it's a subscription expired error
+      if (error.response?.data?.subscription_expired) {
+        const subscriptionError = new Error(error.response.data.message)
+        ;(subscriptionError as any).subscriptionExpired = true
+        throw subscriptionError
       }
       
       throw error

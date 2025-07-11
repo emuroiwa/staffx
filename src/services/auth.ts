@@ -34,7 +34,10 @@ export interface User {
   id: number
   name: string
   email: string
-  company?: string
+  role: string
+  company_id?: number
+  default_company_id?: number
+  company?: string // Backward compatibility
   created_at: string
   updated_at: string
 }
@@ -53,6 +56,12 @@ export interface EmailVerificationError {
   success: false
   message: string
   requires_verification: true
+}
+
+export interface SubscriptionExpiredError {
+  success: false
+  message: string
+  subscription_expired: true
 }
 
 export interface UserResponse {

@@ -106,6 +106,34 @@
           <AlertCircle class="h-5 w-5 text-red-400 mr-2" />
           <p class="text-sm text-red-800 dark:text-red-200">{{ loginError }}</p>
         </div>
+        
+        <!-- Email Verification Actions -->
+        <div v-if="showEmailVerification" class="mt-3 pt-3 border-t border-red-200 dark:border-red-700">
+          <p class="text-sm text-red-700 dark:text-red-300 mb-2">
+            Please check your email for a verification link, or click below to resend.
+          </p>
+          <button
+            @click="handleResendVerification"
+            :disabled="resendingVerification"
+            class="inline-flex items-center px-3 py-1.5 border border-red-300 dark:border-red-600 text-sm font-medium rounded-md text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div v-if="resendingVerification" class="loading-spinner w-4 h-4 mr-1"></div>
+            {{ resendingVerification ? 'Sending...' : 'Resend verification email' }}
+          </button>
+        </div>
+        
+        <!-- Subscription Expired Actions -->
+        <div v-if="showSubscriptionExpired" class="mt-3 pt-3 border-t border-red-200 dark:border-red-700">
+          <p class="text-sm text-red-700 dark:text-red-300 mb-2">
+            Contact your administrator to renew your subscription and regain access to the system.
+          </p>
+          <div class="flex items-center space-x-2">
+            <Info class="h-4 w-4 text-red-400" />
+            <span class="text-xs text-red-600 dark:text-red-400">
+              Your account access has been temporarily suspended due to subscription expiry.
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- Submit Button -->
@@ -157,6 +185,9 @@ const form = reactive({
 const showPassword = ref(false)
 const loading = ref(false)
 const loginError = ref('')
+const showEmailVerification = ref(false)
+const showSubscriptionExpired = ref(false)
+const resendingVerification = ref(false)
 const errors = reactive({
   email: '',
   password: ''
@@ -206,9 +237,39 @@ async function handleLogin() {
     // Redirect to dashboard on success
     router.push('/dashboard')
   } catch (error) {
-    loginError.value = error.response?.data?.message || error.message || 'Invalid email or password. Please try again.'
+    // Reset display states
+    showEmailVerification.value = false
+    showSubscriptionExpired.value = false
+    
+    // Check if it's an email verification error
+    if (error.requiresVerification) {
+      showEmailVerification.value = true
+      loginError.value = error.message
+    } 
+    // Check if it's a subscription expired error
+    else if (error.subscriptionExpired) {
+      showSubscriptionExpired.value = true
+      loginError.value = error.message
+    } 
+    // Generic error
+    else {
+      loginError.value = error.response?.data?.message || error.message || 'Invalid email or password. Please try again.'
+    }
   } finally {
     loading.value = false
+  }
+}
+
+// Handle resend verification
+async function handleResendVerification() {
+  resendingVerification.value = true
+  try {
+    await authStore.resendEmailVerification()
+    loginError.value = 'Verification email sent! Please check your inbox.'
+  } catch (error) {
+    loginError.value = error.response?.data?.message || error.message || 'Failed to send verification email. Please try again.'
+  } finally {
+    resendingVerification.value = false
   }
 }
 </script>
