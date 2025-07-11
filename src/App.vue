@@ -7,14 +7,17 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 
 const themeStore = useThemeStore()
+const authStore = useAuthStore()
 
 let resizeHandler = null
 
 onMounted(() => {
-  // Initialize theme on app mount
+  // Initialize theme and auth on app mount
   themeStore.initializeTheme()
+  authStore.initializeAuth()
 
   // Add resize handler for responsive design
   resizeHandler = () => {
