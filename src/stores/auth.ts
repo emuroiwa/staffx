@@ -22,6 +22,31 @@ export const useAuthStore = defineStore('auth', () => {
 
   const userDisplayName = computed(() => user.value?.name || 'Unknown User')
 
+  const isHoldingCompanyAdmin = computed(() => user.value?.role === 'holding_company_admin')
+  
+  const hasActiveTrial = computed(() => {
+    if (!user.value?.trial_expires_at) return false
+    return new Date(user.value.trial_expires_at) > new Date()
+  })
+  
+  const trialDaysLeft = computed(() => {
+    if (!user.value?.trial_expires_at) return 0
+    const expiryDate = new Date(user.value.trial_expires_at)
+    const today = new Date()
+    const diffTime = expiryDate.getTime() - today.getTime()
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  })
+  
+  const trialStatus = computed(() => {
+    if (!isHoldingCompanyAdmin.value) return null
+    if (!user.value?.trial_expires_at) return 'no_trial'
+    
+    const daysLeft = trialDaysLeft.value
+    if (daysLeft > 7) return 'active'
+    if (daysLeft > 0) return 'expiring_soon'
+    return 'expired'
+  })
+
   // Actions
   function setUser(userData: Partial<User>) {
     if (user.value) {
@@ -189,6 +214,10 @@ export const useAuthStore = defineStore('auth', () => {
     // Getters
     userInitials,
     userDisplayName,
+    isHoldingCompanyAdmin,
+    hasActiveTrial,
+    trialDaysLeft,
+    trialStatus,
 
     // Actions
     setUser,

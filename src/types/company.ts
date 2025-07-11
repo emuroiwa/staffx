@@ -1,7 +1,9 @@
 export interface Company {
   id: number
+  created_by: number
   name: string
   slug: string
+  domain?: string
   email?: string
   phone?: string
   address?: string
@@ -12,11 +14,14 @@ export interface Company {
   website?: string
   tax_id?: string
   logo_path?: string | null
-  is_active: boolean
   subscription_expires_at?: string | null
+  is_active: boolean
   settings?: CompanySettings
   created_at: string
   updated_at: string
+  creator?: User
+  users?: User[]
+  employees?: Employee[]
 }
 
 export interface CompanyStats {
@@ -25,11 +30,24 @@ export interface CompanyStats {
   total_users: number
   departments: number
   recent_payrolls: number
-  subscription_status: {
+  company_status: {
     is_active: boolean
-    expires_at?: string | null
     has_active_subscription: boolean
+    subscription_expires_at?: string | null
   }
+}
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  role: 'holding_company_admin' | 'admin' | 'manager' | 'hr' | 'employee'
+  company_id?: number
+  default_company_id?: number
+  trial_expires_at?: string | null
+  avatar?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface CompanySettings {

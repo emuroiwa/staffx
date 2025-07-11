@@ -1,34 +1,98 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Company, CompanyStats, CompanySettings } from '@/types/company'
+import type { Company, CompanyStats, PaginatedResponse, ApiResponse, User } from '@/types/company'
 import api from '@/services/api'
 
 export const useCompanyStore = defineStore('company', () => {
   // State
-  const company = ref<Company | null>(null)
+  const companies = ref<Company[]>([])
+  const currentCompany = ref<Company | null>(null)
+  const defaultCompany = ref<Company | null>(null)
   const stats = ref<CompanyStats | null>(null)
-  const settings = ref<CompanySettings>({})
+  const pagination = ref({
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0,
+    from: 0,
+    to: 0
+  })
   const loading = ref(false)
   const statsLoading = ref(false)
+  const filters = ref({
+    search: '',
+    is_active: '',
+    per_page: 15
+  })
 
   // Getters
-  const companyName = computed(() => company.value?.name || 'Unknown Company')
-  const companySlug = computed(() => company.value?.slug || '')
-  const hasActiveSubscription = computed(() => company.value?.is_active && 
-    (!company.value?.subscription_expires_at || new Date(company.value.subscription_expires_at) > new Date()))
-  const isActive = computed(() => company.value?.is_active || false)
+  const companyCount = computed(() => companies.value.length)
+  const activeCompanies = computed(() => 
+    companies.value.filter(company => company.is_active)
+  )
+  const hasDefaultCompany = computed(() => !!defaultCompany.value)
 
   // Actions
-  async function fetchCompany() {
+  async function fetchCompanies(page = 1, params = {}) {
     loading.value = true
     try {
-      const response = await api.get('/company')
-      company.value = response.data.data
+      const queryParams = {
+        page,
+        per_page: filters.value.per_page,
+        ...filters.value,
+        ...params
+      }
       
-      // Store company data
-      localStorage.setItem('company', JSON.stringify(company.value))
+      // Remove empty params
+      Object.keys(queryParams).forEach(key => {
+        if (queryParams[key] === '' || queryParams[key] === null || queryParams[key] === undefined) {
+          delete queryParams[key]
+        }
+      })
+
+      const response = await api.get('/companies', { params: queryParams })
       
-      return company.value
+      // Check if response is paginated (HCA) or single company (other roles)
+      if (response.data.data.data) {
+        // Paginated response for HCA
+        const data: PaginatedResponse<Company> = response.data.data
+        companies.value = data.data
+        pagination.value = {
+          current_page: data.current_page,
+          last_page: data.last_page,
+          per_page: data.per_page,
+          total: data.total,
+          from: data.from,
+          to: data.to
+        }
+      } else {
+        // Single company response for other roles
+        companies.value = [response.data.data]
+        pagination.value = {
+          current_page: 1,
+          last_page: 1,
+          per_page: 1,
+          total: 1,
+          from: 1,
+          to: 1
+        }
+      }
+      
+      return response.data.data
+    } catch (error) {
+      console.error('Failed to fetch companies:', error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchCompany(id: number) {
+    loading.value = true
+    try {
+      const response = await api.get(`/companies/${id}`)
+      currentCompany.value = response.data.data
+      return currentCompany.value
     } catch (error) {
       console.error('Failed to fetch company:', error)
       throw error
@@ -37,16 +101,47 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  async function updateCompany(data: Partial<Company>) {
+  async function createCompany(data: Partial<Company>) {
     loading.value = true
     try {
-      const response = await api.put('/company', data)
-      company.value = response.data.data
+      const response = await api.post('/companies', data)
+      const newCompany: Company = response.data.data
       
-      // Store updated company data
-      localStorage.setItem('company', JSON.stringify(company.value))
+      // Add to companies list
+      companies.value.unshift(newCompany)
       
-      return company.value
+      return newCompany
+    } catch (error) {
+      console.error('Failed to create company:', error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function updateCompany(id: number, data: Partial<Company>) {
+    loading.value = true
+    try {
+      const response = await api.put(`/companies/${id}`, data)
+      const updatedCompany: Company = response.data.data
+      
+      // Update in companies list
+      const index = companies.value.findIndex(company => company.id === id)
+      if (index !== -1) {
+        companies.value[index] = updatedCompany
+      }
+      
+      // Update current company if it's the same one
+      if (currentCompany.value?.id === id) {
+        currentCompany.value = updatedCompany
+      }
+      
+      // Update default company if it's the same one
+      if (defaultCompany.value?.id === id) {
+        defaultCompany.value = updatedCompany
+      }
+      
+      return updatedCompany
     } catch (error) {
       console.error('Failed to update company:', error)
       throw error
@@ -55,10 +150,37 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  async function fetchStats() {
+  async function deleteCompany(id: number) {
+    loading.value = true
+    try {
+      await api.delete(`/companies/${id}`)
+      
+      // Remove from companies list
+      companies.value = companies.value.filter(company => company.id !== id)
+      
+      // Clear current company if it's the same one
+      if (currentCompany.value?.id === id) {
+        currentCompany.value = null
+      }
+      
+      // Clear default company if it's the same one
+      if (defaultCompany.value?.id === id) {
+        defaultCompany.value = null
+      }
+      
+      return true
+    } catch (error) {
+      console.error('Failed to delete company:', error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchCompanyStats(id: number) {
     statsLoading.value = true
     try {
-      const response = await api.get('/company/stats')
+      const response = await api.get(`/companies/${id}/stats`)
       stats.value = response.data.data
       return stats.value
     } catch (error) {
@@ -69,117 +191,91 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  async function fetchSettings() {
+  async function fetchDefaultCompany() {
     try {
-      const response = await api.get('/company/settings')
-      settings.value = response.data.data
-      return settings.value
+      const response = await api.get('/companies/default')
+      defaultCompany.value = response.data.data.default_company
+      return defaultCompany.value
     } catch (error) {
-      console.error('Failed to fetch company settings:', error)
+      console.error('Failed to fetch default company:', error)
       throw error
     }
   }
 
-  async function updateSettings(newSettings: Partial<CompanySettings>) {
-    try {
-      const response = await api.put('/company/settings', { settings: newSettings })
-      settings.value = { ...settings.value, ...response.data.data }
-      return settings.value
-    } catch (error) {
-      console.error('Failed to update company settings:', error)
-      throw error
-    }
-  }
-
-  async function uploadLogo(file: File) {
+  async function setDefaultCompany(id: number) {
     loading.value = true
     try {
-      const formData = new FormData()
-      formData.append('logo', file)
+      const response = await api.post(`/companies/${id}/set-default`)
+      defaultCompany.value = response.data.data.default_company
       
-      const response = await api.post('/company/upload-logo', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      
-      // Update company logo info
-      if (company.value) {
-        company.value.logo_path = response.data.data.logo_path
-        localStorage.setItem('company', JSON.stringify(company.value))
-      }
-      
-      return response.data.data
+      return defaultCompany.value
     } catch (error) {
-      console.error('Failed to upload logo:', error)
+      console.error('Failed to set default company:', error)
       throw error
     } finally {
       loading.value = false
     }
   }
 
-  async function removeLogo() {
-    loading.value = true
-    try {
-      await api.delete('/company/logo')
-      
-      // Update company logo info
-      if (company.value) {
-        company.value.logo_path = null
-        localStorage.setItem('company', JSON.stringify(company.value))
-      }
-      
-      return true
-    } catch (error) {
-      console.error('Failed to remove logo:', error)
-      throw error
-    } finally {
-      loading.value = false
+  function setFilters(newFilters: Partial<typeof filters.value>) {
+    filters.value = { ...filters.value, ...newFilters }
+  }
+
+  function clearFilters() {
+    filters.value = {
+      search: '',
+      is_active: '',
+      per_page: 15
     }
   }
 
-  function initializeCompany() {
-    const storedCompany = localStorage.getItem('company')
-    if (storedCompany) {
-      try {
-        company.value = JSON.parse(storedCompany)
-      } catch (error) {
-        console.error('Failed to parse stored company data:', error)
-        localStorage.removeItem('company')
-      }
-    }
+  function setCurrentCompany(company: Company | null) {
+    currentCompany.value = company
   }
 
-  function clearCompany() {
-    company.value = null
+  function clearCompanies() {
+    companies.value = []
+    currentCompany.value = null
+    defaultCompany.value = null
     stats.value = null
-    settings.value = {}
-    localStorage.removeItem('company')
+    pagination.value = {
+      current_page: 1,
+      last_page: 1,
+      per_page: 15,
+      total: 0,
+      from: 0,
+      to: 0
+    }
   }
 
   return {
     // State
-    company,
+    companies,
+    currentCompany,
+    defaultCompany,
     stats,
-    settings,
+    pagination,
     loading,
     statsLoading,
+    filters,
 
     // Getters
-    companyName,
-    companySlug,
-    hasActiveSubscription,
-    isActive,
+    companyCount,
+    activeCompanies,
+    hasDefaultCompany,
 
     // Actions
+    fetchCompanies,
     fetchCompany,
+    createCompany,
     updateCompany,
-    fetchStats,
-    fetchSettings,
-    updateSettings,
-    uploadLogo,
-    removeLogo,
-    initializeCompany,
-    clearCompany
+    deleteCompany,
+    fetchCompanyStats,
+    fetchDefaultCompany,
+    setDefaultCompany,
+    setFilters,
+    clearFilters,
+    setCurrentCompany,
+    clearCompanies
   }
 })

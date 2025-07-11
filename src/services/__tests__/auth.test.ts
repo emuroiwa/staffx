@@ -68,7 +68,10 @@ describe('AuthService', () => {
   })
 
   describe('register', () => {
-    it('should register new user', async () => {
+    it('should register new HCA user with trial', async () => {
+      const futureDate = new Date()
+      futureDate.setMonth(futureDate.getMonth() + 1)
+      
       const mockResponse = {
         data: {
           success: true,
@@ -79,7 +82,8 @@ describe('AuthService', () => {
               id: 1,
               name: 'John Doe',
               email: 'john@example.com',
-              company: 'Example Corp',
+              role: 'holding_company_admin',
+              trial_expires_at: futureDate.toISOString(),
               created_at: '2024-01-01T00:00:00.000000Z',
               updated_at: '2024-01-01T00:00:00.000000Z',
             },
@@ -103,6 +107,8 @@ describe('AuthService', () => {
       expect(api.post).toHaveBeenCalledWith('/auth/register', userData)
       expect(result).toEqual(mockResponse.data)
       expect(result.success).toBe(true)
+      expect(result.data.user.role).toBe('holding_company_admin')
+      expect(result.data.user.trial_expires_at).toBeTruthy()
     })
   })
 

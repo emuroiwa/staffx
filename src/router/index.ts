@@ -5,6 +5,7 @@ import AuthLayout from '@/components/layout/AuthLayout.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Employees from '@/views/Employees.vue'
 import Payroll from '@/views/Payroll.vue'
+import CompaniesView from '@/views/CompaniesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
@@ -130,6 +131,28 @@ const routes = [
     ]
   },
 
+  // Protected companies routes (HCA only)
+  {
+    path: '/companies',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Companies',
+        component: CompaniesView,
+        meta: {
+          title: 'Companies',
+          icon: 'building-office',
+          requiresAuth: true,
+          requiresHCA: true
+        }
+      }
+    ]
+  },
+
   // Protected profile routes
   {
     path: '/profile',
@@ -208,6 +231,7 @@ router.beforeEach(async (to, from, next) => {
   // Check authentication requirements
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
+  const requiresHCA = to.matched.some(record => record.meta.requiresHCA)
   const isAuthenticated = authStore.isAuthenticated
 
   if (requiresAuth && !isAuthenticated) {
@@ -215,6 +239,9 @@ router.beforeEach(async (to, from, next) => {
     next('/auth/login')
   } else if (requiresGuest && isAuthenticated) {
     // Redirect to dashboard if guest route but user is authenticated
+    next('/dashboard')
+  } else if (requiresHCA && !authStore.isHoldingCompanyAdmin) {
+    // Redirect to dashboard if HCA route but user is not HCA
     next('/dashboard')
   } else {
     next()

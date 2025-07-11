@@ -31,6 +31,7 @@ describe('Auth Store', () => {
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
+        role: 'employee',
         company: 'Example Corp',
         created_at: '2024-01-01T00:00:00.000000Z',
         updated_at: '2024-01-01T00:00:00.000000Z',
@@ -51,12 +52,84 @@ describe('Auth Store', () => {
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
+        role: 'employee',
         company: 'Example Corp',
         created_at: '2024-01-01T00:00:00.000000Z',
         updated_at: '2024-01-01T00:00:00.000000Z',
       }
 
       expect(authStore.userDisplayName).toBe('John Doe')
+    })
+
+    it('should identify holding company admin correctly', () => {
+      const authStore = useAuthStore()
+      
+      // Test HCA user
+      authStore.user = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        role: 'holding_company_admin',
+        trial_expires_at: '2024-12-31T23:59:59.000Z',
+        created_at: '2024-01-01T00:00:00.000000Z',
+        updated_at: '2024-01-01T00:00:00.000000Z',
+      }
+
+      expect(authStore.isHoldingCompanyAdmin).toBe(true)
+
+      // Test non-HCA user
+      authStore.user.role = 'admin'
+      expect(authStore.isHoldingCompanyAdmin).toBe(false)
+    })
+
+    it('should calculate trial status correctly', () => {
+      const authStore = useAuthStore()
+      
+      authStore.user = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        role: 'holding_company_admin',
+        created_at: '2024-01-01T00:00:00.000000Z',
+        updated_at: '2024-01-01T00:00:00.000000Z',
+      }
+
+      // Test active trial (30 days left)
+      const futureDate = new Date()
+      futureDate.setDate(futureDate.getDate() + 30)
+      authStore.user.trial_expires_at = futureDate.toISOString()
+
+      expect(authStore.hasActiveTrial).toBe(true)
+      expect(authStore.trialDaysLeft).toBe(30)
+      expect(authStore.trialStatus).toBe('active')
+
+      // Test expiring soon (3 days left)
+      const soonDate = new Date()
+      soonDate.setDate(soonDate.getDate() + 3)
+      authStore.user.trial_expires_at = soonDate.toISOString()
+
+      expect(authStore.hasActiveTrial).toBe(true)
+      expect(authStore.trialDaysLeft).toBe(3)
+      expect(authStore.trialStatus).toBe('expiring_soon')
+
+      // Test expired trial
+      const pastDate = new Date()
+      pastDate.setDate(pastDate.getDate() - 1)
+      authStore.user.trial_expires_at = pastDate.toISOString()
+
+      expect(authStore.hasActiveTrial).toBe(false)
+      expect(authStore.trialDaysLeft).toBeLessThanOrEqual(0)
+      expect(authStore.trialStatus).toBe('expired')
+
+      // Test no trial
+      authStore.user.trial_expires_at = undefined
+      expect(authStore.hasActiveTrial).toBe(false)
+      expect(authStore.trialDaysLeft).toBe(0)
+      expect(authStore.trialStatus).toBe('no_trial')
+
+      // Test non-HCA user
+      authStore.user.role = 'admin'
+      expect(authStore.trialStatus).toBeNull()
     })
   })
 
