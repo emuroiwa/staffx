@@ -18,8 +18,12 @@ app.use(pinia)
 app.use(router)
 
 // Initialize auth state from localStorage
-const authStore = useAuthStore()
-authStore.initializeAuth()
+const initializeApp = async () => {
+  const authStore = useAuthStore()
+  await authStore.initializeAuth()
+  
+  // Mount app after auth initialization
+  app.mount('#app')
+}
 
-// Mount app
-app.mount('#app')
+initializeApp()

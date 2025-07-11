@@ -216,14 +216,13 @@ async function handleLogin() {
   try {
     await authStore.login({
       email: form.email,
-      password: form.password,
-      remember: form.remember
+      password: form.password
     })
 
     // Redirect to dashboard on success
     router.push('/dashboard')
   } catch (error) {
-    loginError.value = error.message || 'Invalid email or password. Please try again.'
+    loginError.value = error.response?.data?.message || error.message || 'Invalid email or password. Please try again.'
   } finally {
     loading.value = false
   }
