@@ -5,6 +5,7 @@ export const useThemeStore = defineStore('theme', () => {
   // State
   const isDark = ref(false)
   const sidebarCollapsed = ref(false)
+  const showMobileSidebar = ref(false)
 
   // Getters
   const theme = computed(() => (isDark.value ? 'dark' : 'light'))
@@ -31,6 +32,18 @@ export const useThemeStore = defineStore('theme', () => {
   function setSidebarCollapsed(collapsed) {
     sidebarCollapsed.value = collapsed
     localStorage.setItem('sidebarCollapsed', collapsed.toString())
+  }
+
+  function toggleMobileSidebar() {
+    showMobileSidebar.value = !showMobileSidebar.value
+  }
+
+  function setMobileSidebar(show) {
+    showMobileSidebar.value = show
+  }
+
+  function hideMobileSidebar() {
+    showMobileSidebar.value = false
   }
 
   function updateHtmlClass() {
@@ -65,6 +78,7 @@ export const useThemeStore = defineStore('theme', () => {
     // State
     isDark,
     sidebarCollapsed,
+    showMobileSidebar,
 
     // Getters
     theme,
@@ -75,6 +89,9 @@ export const useThemeStore = defineStore('theme', () => {
     setTheme,
     toggleSidebar,
     setSidebarCollapsed,
+    toggleMobileSidebar,
+    setMobileSidebar,
+    hideMobileSidebar,
     initializeTheme
   }
 })

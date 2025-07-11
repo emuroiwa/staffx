@@ -9,9 +9,9 @@
       <!-- Left Section: Menu Toggle & Breadcrumb -->
       <div class="flex items-center space-x-4">
         <button
-          @click="themeStore.toggleSidebar"
+          @click="themeStore.toggleMobileSidebar"
           class="nav-button lg:hidden"
-          aria-label="Toggle sidebar"
+          aria-label="Toggle mobile menu"
         >
           <Menu class="w-5 h-5" />
         </button>

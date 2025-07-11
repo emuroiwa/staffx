@@ -9,8 +9,8 @@
     <!-- Mobile Sidebar Overlay -->
     <transition name="fade">
       <div
-        v-if="showMobileSidebar"
-        @click="closeMobileSidebar"
+        v-if="themeStore.showMobileSidebar"
+        @click="themeStore.hideMobileSidebar"
         class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
       ></div>
     </transition>
@@ -19,21 +19,19 @@
     <main
       :class="[
         'transition-all duration-300 ease-in-out',
-        'lg:' + (themeStore.sidebarCollapsed ? 'ml-16' : 'ml-64'),
+        themeStore.sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
         'ml-0',
         'pt-16',
         'min-h-screen'
       ]"
     >
       <!-- Page Content -->
-      <div class="p-4 lg:p-6">
-        <div class="max-w-7xl mx-auto">
-          <router-view v-slot="{ Component }">
-            <transition name="page" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
+      <div class="p-4 lg:p-6 w-full">
+        <router-view v-slot="{ Component }">
+          <transition name="page" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </div>
     </main>
 
@@ -121,14 +119,10 @@ const themeStore = useThemeStore()
 
 // Reactive state
 const loading = ref(false)
-const showMobileSidebar = ref(false)
 const toasts = ref([])
 let toastIdCounter = 0
 
 // Methods
-function closeMobileSidebar() {
-  showMobileSidebar.value = false
-}
 
 function addToast(toast) {
   const id = ++toastIdCounter
@@ -167,7 +161,7 @@ function setupGlobalToasts() {
 // Handle responsive sidebar
 function handleResize() {
   if (window.innerWidth >= 1024) {
-    showMobileSidebar.value = false
+    themeStore.hideMobileSidebar()
   }
 }
 
@@ -175,9 +169,7 @@ function handleResize() {
 watch(
   () => route.path,
   () => {
-    if (showMobileSidebar.value) {
-      showMobileSidebar.value = false
-    }
+    themeStore.hideMobileSidebar()
   }
 )
 
@@ -189,9 +181,7 @@ function setLoading(state) {
 // Expose methods for child components
 defineExpose({
   addToast,
-  setLoading,
-  showMobileSidebar,
-  closeMobileSidebar
+  setLoading
 })
 
 // Initialize on mount

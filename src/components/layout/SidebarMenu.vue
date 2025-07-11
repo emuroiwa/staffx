@@ -2,6 +2,8 @@
   <div
     :class="[
       'fixed left-0 top-0 h-full bg-sidebar-light dark:bg-sidebar-dark border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40',
+      'lg:block',
+      showMobileSidebar ? 'block' : 'hidden lg:block',
       themeStore.sidebarCollapsed ? 'w-16' : 'w-64'
     ]"
   >
@@ -55,6 +57,7 @@
         class="block"
       >
         <div
+          @click="themeStore.hideMobileSidebar"
           :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
           :title="themeStore.sidebarCollapsed ? item.title : ''"
         >
@@ -121,6 +124,9 @@ import { Building2, Home, Users, CreditCard, Sun, Moon, LogOut } from 'lucide-vu
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+
+// Use mobile sidebar state from theme store
+const showMobileSidebar = computed(() => themeStore.showMobileSidebar)
 
 const menuItems = computed(() => [
   {
