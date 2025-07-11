@@ -360,7 +360,7 @@ async function handleRegister() {
   registerError.value = ''
 
   try {
-    await authStore.register({
+    const result = await authStore.register({
       firstName: form.firstName,
       lastName: form.lastName,
       email: form.email,
@@ -368,8 +368,12 @@ async function handleRegister() {
       password: form.password
     })
 
-    // Redirect to dashboard on success
-    router.push('/dashboard')
+    // Redirect based on user role
+    if (result.user.role === 'holding_company_admin') {
+      router.push('/companies')
+    } else {
+      router.push('/dashboard')
+    }
   } catch (error) {
     registerError.value = error.message || 'Registration failed. Please try again.'
   } finally {

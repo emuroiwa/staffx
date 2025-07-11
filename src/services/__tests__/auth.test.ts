@@ -68,7 +68,7 @@ describe('AuthService', () => {
   })
 
   describe('register', () => {
-    it('should register new HCA user with trial', async () => {
+    it('should register new HCA user with trial and company', async () => {
       const futureDate = new Date()
       futureDate.setMonth(futureDate.getMonth() + 1)
       
@@ -84,6 +84,16 @@ describe('AuthService', () => {
               email: 'john@example.com',
               role: 'holding_company_admin',
               trial_expires_at: futureDate.toISOString(),
+              default_company_id: 1,
+              created_at: '2024-01-01T00:00:00.000000Z',
+              updated_at: '2024-01-01T00:00:00.000000Z',
+            },
+            company: {
+              id: 1,
+              name: 'Example Corp',
+              slug: 'example-corp',
+              created_by: 1,
+              is_active: true,
               created_at: '2024-01-01T00:00:00.000000Z',
               updated_at: '2024-01-01T00:00:00.000000Z',
             },
@@ -109,6 +119,9 @@ describe('AuthService', () => {
       expect(result.success).toBe(true)
       expect(result.data.user.role).toBe('holding_company_admin')
       expect(result.data.user.trial_expires_at).toBeTruthy()
+      expect(result.data.user.default_company_id).toBe(1)
+      expect(result.data.company.name).toBe('Example Corp')
+      expect(result.data.company.created_by).toBe(1)
     })
   })
 

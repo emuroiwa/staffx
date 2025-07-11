@@ -45,7 +45,14 @@ export interface AuthResponse {
   data: {
     token: string
     user: User
+    company?: any
   }
+}
+
+export interface EmailVerificationError {
+  success: false
+  message: string
+  requires_verification: true
 }
 
 export interface UserResponse {
@@ -98,6 +105,11 @@ class AuthService {
 
   async resetPassword(data: ResetPasswordData): Promise<MessageResponse> {
     const response = await api.post('/auth/reset-password', data)
+    return response.data
+  }
+
+  async resendEmailVerification(): Promise<MessageResponse> {
+    const response = await api.post('/auth/email/resend')
     return response.data
   }
 }

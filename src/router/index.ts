@@ -12,6 +12,7 @@ import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
+import EmailVerificationView from '@/views/auth/EmailVerificationView.vue'
 
 const routes = [
   // Redirect root to login
@@ -62,6 +63,15 @@ const routes = [
         component: ResetPasswordView,
         meta: {
           title: 'Reset Password',
+          requiresGuest: true
+        }
+      },
+      {
+        path: 'email/verify/:id/:hash',
+        name: 'EmailVerification',
+        component: EmailVerificationView,
+        meta: {
+          title: 'Email Verification',
           requiresGuest: true
         }
       }

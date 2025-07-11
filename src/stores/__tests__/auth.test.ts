@@ -186,8 +186,11 @@ describe('Auth Store', () => {
   })
 
   describe('register', () => {
-    it('should register user successfully', async () => {
+    it('should register user successfully with company creation', async () => {
       const authStore = useAuthStore()
+      const futureDate = new Date()
+      futureDate.setMonth(futureDate.getMonth() + 1)
+      
       const mockResponse = {
         success: true,
         message: 'Registration successful',
@@ -197,7 +200,18 @@ describe('Auth Store', () => {
             id: 1,
             name: 'John Doe',
             email: 'john@example.com',
-            company: 'Example Corp',
+            role: 'holding_company_admin',
+            trial_expires_at: futureDate.toISOString(),
+            default_company_id: 1,
+            created_at: '2024-01-01T00:00:00.000000Z',
+            updated_at: '2024-01-01T00:00:00.000000Z',
+          },
+          company: {
+            id: 1,
+            name: 'Example Corp',
+            slug: 'example-corp',
+            created_by: 1,
+            is_active: true,
             created_at: '2024-01-01T00:00:00.000000Z',
             updated_at: '2024-01-01T00:00:00.000000Z',
           },
@@ -225,7 +239,11 @@ describe('Auth Store', () => {
         password_confirmation: 'password123',
       })
       expect(authStore.isAuthenticated).toBe(true)
-      expect(result).toEqual(mockResponse.data.user)
+      expect(result.user).toEqual(mockResponse.data.user)
+      expect(result.company).toEqual(mockResponse.data.company)
+      expect(result.user.role).toBe('holding_company_admin')
+      expect(result.user.default_company_id).toBe(1)
+      expect(result.company.name).toBe('Example Corp')
     })
   })
 

@@ -68,9 +68,19 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(user.value))
 
       return user.value
-    } catch (error) {
+    } catch (error: any) {
       isAuthenticated.value = false
       user.value = null
+      
+      // Check if it's an email verification error
+      if (error.response?.data?.requires_verification) {
+        // Store the email for potential resend verification
+        localStorage.setItem('unverifiedEmail', credentials.email)
+        const verificationError = new Error(error.response.data.message)
+        ;(verificationError as any).requiresVerification = true
+        throw verificationError
+      }
+      
       throw error
     } finally {
       loading.value = false
@@ -103,7 +113,10 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('isAuthenticated', 'true')
       localStorage.setItem('user', JSON.stringify(user.value))
 
-      return user.value
+      return {
+        user: user.value,
+        company: response.data.company
+      }
     } catch (error) {
       throw error
     } finally {
@@ -183,6 +196,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function resendEmailVerification() {
+    loading.value = true
+    try {
+      const response = await authService.resendEmailVerification()
+      return response
+    } catch (error) {
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function initializeAuth() {
     const storedAuth = localStorage.getItem('isAuthenticated')
     const storedToken = localStorage.getItem('authToken')
@@ -227,6 +252,7 @@ export const useAuthStore = defineStore('auth', () => {
     resetPassword,
     logout,
     updateProfile,
+    resendEmailVerification,
     initializeAuth
   }
 })
