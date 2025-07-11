@@ -2,6 +2,22 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
+// Flag to prevent multiple concurrent refresh attempts
+let isRefreshing = false
+let failedQueue: any[] = []
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  
+  failedQueue = []
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -31,27 +47,57 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If we're already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`
+          return api(originalRequest)
+        }).catch((err) => {
+          return Promise.reject(err)
+        })
+      }
+
       originalRequest._retry = true
+      isRefreshing = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (refreshToken) {
-          const response = await api.post('/auth/refresh')
+        const authToken = localStorage.getItem('authToken')
+        if (authToken) {
+          // Create a new axios instance without interceptors for the refresh request
+          const refreshApi = axios.create({
+            baseURL: API_BASE_URL,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            }
+          })
+          
+          const response = await refreshApi.post('/auth/refresh')
           const { token } = response.data.data
           
           localStorage.setItem('authToken', token)
           originalRequest.headers.Authorization = `Bearer ${token}`
           
+          processQueue(null, token)
+          
           return api(originalRequest)
+        } else {
+          throw new Error('No token available')
         }
       } catch (refreshError) {
         // Refresh failed, redirect to login
+        processQueue(refreshError, null)
         localStorage.removeItem('authToken')
-        localStorage.removeItem('refreshToken')
         localStorage.removeItem('user')
         localStorage.removeItem('isAuthenticated')
         
         window.location.href = '/auth/login'
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
       }
     }
 

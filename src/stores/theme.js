@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 export const useThemeStore = defineStore('theme', () => {
   // State
   const isDark = ref(false)
+  const currentTheme = ref('system') // 'light', 'dark', or 'system'
   const sidebarCollapsed = ref(false)
   const showMobileSidebar = ref(false)
 
@@ -19,7 +20,16 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function setTheme(newTheme) {
-    isDark.value = newTheme === 'dark'
+    currentTheme.value = newTheme
+    
+    if (newTheme === 'system') {
+      // Follow system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      isDark.value = prefersDark
+    } else {
+      isDark.value = newTheme === 'dark'
+    }
+    
     updateHtmlClass()
     localStorage.setItem('theme', newTheme)
   }
@@ -32,6 +42,16 @@ export const useThemeStore = defineStore('theme', () => {
   function setSidebarCollapsed(collapsed) {
     sidebarCollapsed.value = collapsed
     localStorage.setItem('sidebarCollapsed', collapsed.toString())
+  }
+
+  function collapseSidebar() {
+    sidebarCollapsed.value = true
+    localStorage.setItem('sidebarCollapsed', 'true')
+  }
+
+  function expandSidebar() {
+    sidebarCollapsed.value = false
+    localStorage.setItem('sidebarCollapsed', 'false')
   }
 
   function toggleMobileSidebar() {
@@ -62,9 +82,8 @@ export const useThemeStore = defineStore('theme', () => {
     if (savedTheme) {
       setTheme(savedTheme)
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setTheme(prefersDark ? 'dark' : 'light')
+      // Default to system preference
+      setTheme('system')
     }
 
     if (savedSidebarState) {
@@ -72,11 +91,20 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     updateHtmlClass()
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (currentTheme.value === 'system') {
+        isDark.value = e.matches
+        updateHtmlClass()
+      }
+    })
   }
 
   return {
     // State
     isDark,
+    currentTheme,
     sidebarCollapsed,
     showMobileSidebar,
 
@@ -89,6 +117,8 @@ export const useThemeStore = defineStore('theme', () => {
     setTheme,
     toggleSidebar,
     setSidebarCollapsed,
+    collapseSidebar,
+    expandSidebar,
     toggleMobileSidebar,
     setMobileSidebar,
     hideMobileSidebar,

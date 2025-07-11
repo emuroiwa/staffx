@@ -135,6 +135,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.removeItem('isAuthenticated')
       localStorage.removeItem('user')
       localStorage.removeItem('authToken')
+
+      // Redirect to login page
+      window.location.href = '/auth/login'
     }
   }
 
@@ -166,8 +169,13 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = response.data.user
         localStorage.setItem('user', JSON.stringify(user.value))
       } catch (error) {
-        // Token is invalid, clear auth
-        logout()
+        console.error('Auth initialization failed:', error)
+        // Token is invalid, clear auth but don't redirect
+        user.value = null
+        isAuthenticated.value = false
+        localStorage.removeItem('isAuthenticated')
+        localStorage.removeItem('user')
+        localStorage.removeItem('authToken')
       }
     }
   }

@@ -5,6 +5,8 @@ import AuthLayout from '@/components/layout/AuthLayout.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Employees from '@/views/Employees.vue'
 import Payroll from '@/views/Payroll.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import SettingsView from '@/views/SettingsView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
@@ -128,6 +130,48 @@ const routes = [
     ]
   },
 
+  // Protected profile routes
+  {
+    path: '/profile',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Profile',
+        component: ProfileView,
+        meta: {
+          title: 'Profile',
+          icon: 'user',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+
+  // Protected settings routes
+  {
+    path: '/settings',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Settings',
+        component: SettingsView,
+        meta: {
+          title: 'Settings',
+          icon: 'settings',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+
   // Catch all - redirect to login
   {
     path: '/:pathMatch(.*)*',
@@ -149,12 +193,17 @@ const router = createRouter({
 })
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
   // Set page title
   const title = to.meta?.title ? `${to.meta.title} | StaffX` : 'StaffX'
   document.title = title
+
+  // Initialize auth if not already initialized
+  if (!authStore.isAuthenticated && localStorage.getItem('authToken')) {
+    await authStore.initializeAuth()
+  }
 
   // Check authentication requirements
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)

@@ -34,6 +34,11 @@
         </nav>
       </div>
 
+      <!-- Company Selector -->
+      <div class="hidden lg:block max-w-xs mx-4">
+        <CompanySelector />
+      </div>
+
       <!-- Center Section: Search -->
       <div class="flex-1 max-w-lg mx-8 hidden md:block">
         <div class="relative">
@@ -205,6 +210,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
+import CompanySelector from '@/components/ui/CompanySelector.vue'
 import {
   Menu,
   Search,
@@ -282,8 +288,17 @@ function handleAddEmployee() {
 
 function handleUserAction(action) {
   showUserMenu.value = false
-  console.log('User action:', action)
-  // Implement user actions here
+  
+  switch (action) {
+    case 'profile':
+      router.push('/profile')
+      break
+    case 'settings':
+      router.push('/settings')
+      break
+    default:
+      console.log('User action:', action)
+  }
 }
 
 function closeAllDropdowns() {
