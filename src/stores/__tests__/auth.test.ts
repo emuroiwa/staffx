@@ -28,6 +28,7 @@ describe('Auth Store', () => {
       const authStore = useAuthStore()
       
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -49,6 +50,7 @@ describe('Auth Store', () => {
       const authStore = useAuthStore()
       
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -66,6 +68,7 @@ describe('Auth Store', () => {
       
       // Test HCA user
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -86,6 +89,7 @@ describe('Auth Store', () => {
       const authStore = useAuthStore()
       
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -117,10 +121,10 @@ describe('Auth Store', () => {
         data: {
           token: 'mock-token',
           user: {
+            uuid: '123e4567-e89b-12d3-a456-426614174000',
             id: 1,
             name: 'John Doe',
             email: 'john@example.com',
-            company: 'Example Corp',
             created_at: '2024-01-01T00:00:00.000000Z',
             updated_at: '2024-01-01T00:00:00.000000Z',
           },
@@ -258,19 +262,24 @@ describe('Auth Store', () => {
         data: {
           token: 'mock-token',
           user: {
+            uuid: '123e4567-e89b-12d3-a456-426614174000',
             id: 1,
             name: 'John Doe',
             email: 'john@example.com',
             role: 'holding_company_admin',
+            company_uuid: '987fcdeb-51a2-43d1-9c67-123456789abc',
+            default_company_uuid: '987fcdeb-51a2-43d1-9c67-123456789abc',
             company_id: 1,
             default_company_id: 1,
             created_at: '2024-01-01T00:00:00.000000Z',
             updated_at: '2024-01-01T00:00:00.000000Z',
           },
           company: {
+            uuid: '987fcdeb-51a2-43d1-9c67-123456789abc',
             id: 1,
             name: 'Example Corp',
             slug: 'example-corp',
+            created_by_uuid: '123e4567-e89b-12d3-a456-426614174000',
             created_by: 1,
             is_active: true,
             created_at: '2024-01-01T00:00:00.000000Z',
@@ -315,6 +324,7 @@ describe('Auth Store', () => {
       // Set initial authenticated state
       authStore.isAuthenticated = true
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -345,6 +355,7 @@ describe('Auth Store', () => {
       
       // Set initial user
       authStore.user = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -386,6 +397,7 @@ describe('Auth Store', () => {
     it('should initialize auth from localStorage', async () => {
       const authStore = useAuthStore()
       const mockUser = {
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',

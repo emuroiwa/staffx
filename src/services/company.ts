@@ -26,7 +26,7 @@ class CompanyService {
     return response.data
   }
 
-  async getCompany(id: number) {
+  async getCompany(id: number | string) {
     const response = await api.get(`/companies/${id}`)
     return response.data
   }
@@ -36,18 +36,21 @@ class CompanyService {
     return response.data
   }
 
-  async updateCompany(id: number, data: Partial<Company>) {
+  async updateCompany(id: number | string, data: Partial<Company>) {
     const response = await api.put(`/companies/${id}`, data)
     return response.data
   }
 
-  async deleteCompany(id: number) {
+  async deleteCompany(id: number | string) {
     const response = await api.delete(`/companies/${id}`)
     return response.data
   }
 
-  async setDefaultCompany(companyId: number) {
-    const response = await api.post('/companies/set-default', { company_id: companyId })
+  async setDefaultCompany(companyId: number | string) {
+    const response = await api.post('/companies/set-default', { 
+      company_id: companyId,
+      company_uuid: typeof companyId === 'string' ? companyId : undefined 
+    })
     return response.data
   }
 

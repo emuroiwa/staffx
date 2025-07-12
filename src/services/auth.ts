@@ -31,12 +31,15 @@ export interface UpdateProfileData {
 }
 
 export interface User {
-  id: number
+  uuid: string
+  id?: number // Kept for backward compatibility with existing foreign keys
   name: string
   email: string
   role: string
-  company_id?: number
-  default_company_id?: number
+  company_uuid?: string
+  default_company_uuid?: string
+  company_id?: number // Backward compatibility
+  default_company_id?: number // Backward compatibility
   company?: string // Backward compatibility
   created_at: string
   updated_at: string

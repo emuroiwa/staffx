@@ -358,6 +358,9 @@ async function handleRegister() {
 
   loading.value = true
   registerError.value = ''
+  
+  // Clear any previous server-side validation errors
+  Object.keys(errors).forEach(key => (errors[key] = ''))
 
   try {
     const result = await authStore.register({
@@ -375,7 +378,33 @@ async function handleRegister() {
       router.push('/dashboard')
     }
   } catch (error) {
-    registerError.value = error.message || 'Registration failed. Please try again.'
+    // Handle validation errors from backend
+    if (error.response?.status === 422 && error.response?.data?.errors) {
+      const validationErrors = error.response.data.errors
+      
+      // Map backend validation errors to form fields
+      Object.keys(validationErrors).forEach(field => {
+        // Map backend field names to frontend field names
+        const fieldMap = {
+          'first_name': 'firstName',
+          'last_name': 'lastName',
+          'email': 'email',
+          'company': 'company',
+          'password': 'password'
+        }
+        
+        const frontendField = fieldMap[field] || field
+        if (errors.hasOwnProperty(frontendField)) {
+          errors[frontendField] = validationErrors[field][0] // Take first error message
+        }
+      })
+      
+      // If there are validation errors, don't show general error
+      registerError.value = ''
+    } else {
+      // Handle other types of errors
+      registerError.value = error.response?.data?.message || error.message || 'Registration failed. Please try again.'
+    }
   } finally {
     loading.value = false
   }

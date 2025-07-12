@@ -1,6 +1,8 @@
 export interface Company {
-  id: number
-  created_by: number
+  uuid: string
+  id?: number // Backward compatibility
+  created_by_uuid: string
+  created_by?: number // Backward compatibility
   name: string
   slug: string
   domain?: string
@@ -38,13 +40,16 @@ export interface CompanyStats {
 }
 
 export interface User {
-  id: number
+  uuid: string
+  id?: number // Backward compatibility
   name: string
   email: string
   role: 'holding_company_admin' | 'admin' | 'manager' | 'hr' | 'employee'
-  company_id?: number
-  default_company_id?: number
-  trial_expires_at?: string | null
+  company_uuid?: string
+  default_company_uuid?: string
+  company_id?: number // Backward compatibility
+  default_company_id?: number // Backward compatibility
+  trial_expires_at?: string | null // Will be deprecated in favor of company-level subscription
   avatar?: string
   created_at: string
   updated_at: string
