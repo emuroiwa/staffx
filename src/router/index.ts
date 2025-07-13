@@ -120,6 +120,69 @@ const routes = [
     ]
   },
 
+  // Protected positions routes
+  {
+    path: '/positions',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Positions',
+        component: () => import('@/pages/positions/PositionList.vue'),
+        meta: {
+          title: 'Positions',
+          icon: 'briefcase',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+
+  // Protected departments routes
+  {
+    path: '/departments',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Departments',
+        component: () => import('@/pages/departments/DepartmentList.vue'),
+        meta: {
+          title: 'Departments',
+          icon: 'building-office',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+
+  // Protected organogram routes
+  {
+    path: '/organogram',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'Organogram',
+        component: () => import('@/pages/organogram/OrganogramView.vue'),
+        meta: {
+          title: 'Organogram',
+          icon: 'chart-bar',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+
   // Protected payroll routes
   {
     path: '/payroll',

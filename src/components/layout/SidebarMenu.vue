@@ -20,7 +20,7 @@
             v-if="!themeStore.sidebarCollapsed"
             class="text-xl font-bold text-gray-900 dark:text-white"
           >
-            StaffX
+            GM58 HR
           </span>
         </transition>
       </div>
@@ -30,7 +30,7 @@
     <div class="p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center space-x-3">
         <img
-          :src="authStore.user?.avatar"
+          :src="authStore.user?.avatar || '/default-avatar.png'"
           :alt="authStore.user?.name"
           class="w-8 h-8 rounded-full object-cover"
         />
@@ -40,7 +40,7 @@
               {{ authStore.user?.name }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {{ authStore.user?.company }}
+              {{ authStore.user?.role }}
             </p>
           </div>
         </transition>
@@ -48,33 +48,152 @@
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 p-4 space-y-2">
-      <router-link
-        v-for="item in menuItems"
-        :key="item.name"
-        :to="item.path"
-        v-slot="{ isActive }"
-        class="block"
-      >
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+      <!-- Dashboard -->
+      <router-link to="/dashboard" v-slot="{ isActive }" class="block">
         <div
           @click="themeStore.hideMobileSidebar"
           :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
-          :title="themeStore.sidebarCollapsed ? item.title : ''"
+          :title="themeStore.sidebarCollapsed ? 'Dashboard' : ''"
         >
-          <component
-            :is="item.icon"
-            :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']"
-          />
+          <Home :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
           <transition name="fade">
             <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
-              {{ item.title }}
+              Dashboard
+            </span>
+          </transition>
+        </div>
+      </router-link>
+
+      <!-- Employee Management -->
+      <div>
+        <!-- Main Employee Menu -->
+        <button
+          @click="toggleEmployeeMenu"
+          :class="[
+            'sidebar-item w-full group',
+            isEmployeeModuleActive ? 'active' : 'text-gray-700 dark:text-gray-300'
+          ]"
+          :title="themeStore.sidebarCollapsed ? 'Employee Management' : ''"
+        >
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center">
+              <Users :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
+              <transition name="fade">
+                <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
+                  Employee Management
+                </span>
+              </transition>
+            </div>
+            <transition name="fade">
+              <ChevronDown 
+                v-if="!themeStore.sidebarCollapsed"
+                :class="['w-4 h-4 transition-transform duration-200', { 'transform rotate-180': showEmployeeMenu }]"
+              />
+            </transition>
+          </div>
+        </button>
+
+        <!-- Employee Submenu -->
+        <transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="transform scale-95 opacity-0"
+          enter-to-class="transform scale-100 opacity-100"
+          leave-active-class="transition duration-75 ease-in"
+          leave-from-class="transform scale-100 opacity-100"
+          leave-to-class="transform scale-95 opacity-0"
+        >
+          <div v-show="showEmployeeMenu && !themeStore.sidebarCollapsed" class="mt-2 ml-6 space-y-1">
+            <router-link to="/employees" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <UserIcon class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Employees</span>
+              </div>
+            </router-link>
+            <router-link to="/positions" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <Briefcase class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Positions</span>
+              </div>
+            </router-link>
+            <router-link to="/departments" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <Building class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Departments</span>
+              </div>
+            </router-link>
+            <router-link to="/organogram" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <BarChart3 class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Organogram</span>
+              </div>
+            </router-link>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Payroll -->
+      <router-link to="/payroll" v-slot="{ isActive }" class="block">
+        <div
+          @click="themeStore.hideMobileSidebar"
+          :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
+          :title="themeStore.sidebarCollapsed ? 'Payroll' : ''"
+        >
+          <CreditCard :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
+          <transition name="fade">
+            <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
+              Payroll
+            </span>
+          </transition>
+        </div>
+      </router-link>
+
+      <!-- Reports -->
+      <router-link to="/reports" v-slot="{ isActive }" class="block">
+        <div
+          @click="themeStore.hideMobileSidebar"
+          :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
+          :title="themeStore.sidebarCollapsed ? 'Reports' : ''"
+        >
+          <FileText :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
+          <transition name="fade">
+            <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
+              Reports
+            </span>
+          </transition>
+        </div>
+      </router-link>
+
+      <!-- Settings -->
+      <router-link to="/settings" v-slot="{ isActive }" class="block">
+        <div
+          @click="themeStore.hideMobileSidebar"
+          :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
+          :title="themeStore.sidebarCollapsed ? 'Settings' : ''"
+        >
+          <Settings :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
+          <transition name="fade">
+            <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
+              Settings
             </span>
           </transition>
         </div>
       </router-link>
     </nav>
 
-    <!-- Settings Section -->
+    <!-- Bottom Section -->
     <div class="p-4 border-t border-gray-200 dark:border-gray-700">
       <button
         @click="themeStore.toggleTheme"
@@ -117,37 +236,57 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
-import { Building2, Home, Users, CreditCard, Sun, Moon, LogOut } from 'lucide-vue-next'
+import { 
+  Building2, 
+  Home, 
+  Users, 
+  CreditCard, 
+  Sun, 
+  Moon, 
+  LogOut,
+  ChevronDown,
+  User as UserIcon,
+  Briefcase,
+  Building,
+  BarChart3,
+  FileText,
+  Settings
+} from 'lucide-vue-next'
 
+const route = useRoute()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 
-// Use mobile sidebar state from theme store
 const showMobileSidebar = computed(() => themeStore.showMobileSidebar)
+const showEmployeeMenu = ref(false)
 
-const menuItems = computed(() => [
-  {
-    name: 'dashboard',
-    title: 'Dashboard',
-    path: '/dashboard',
-    icon: Home
-  },
-  {
-    name: 'employees',
-    title: 'Employees',
-    path: '/employees',
-    icon: Users
-  },
-  {
-    name: 'payroll',
-    title: 'Payroll',
-    path: '/payroll',
-    icon: CreditCard
+const isEmployeeModuleActive = computed(() => {
+  return ['/employees', '/positions', '/departments', '/organogram'].some(path => 
+    route.path.startsWith(path)
+  )
+})
+
+const toggleEmployeeMenu = () => {
+  showEmployeeMenu.value = !showEmployeeMenu.value
+}
+
+// Auto-expand employee menu if we're on an employee-related page
+watch(() => route.path, (newPath) => {
+  if (isEmployeeModuleActive.value) {
+    showEmployeeMenu.value = true
   }
-])
+}, { immediate: true })
+
+// Collapse employee menu when sidebar is collapsed
+watch(() => themeStore.sidebarCollapsed, (collapsed) => {
+  if (collapsed) {
+    showEmployeeMenu.value = false
+  }
+})
 </script>
 
 <style scoped>
@@ -159,5 +298,13 @@ const menuItems = computed(() => [
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.sidebar-item {
+  @apply flex items-center px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.sidebar-item.active {
+  @apply bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300;
 }
 </style>
