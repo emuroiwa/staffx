@@ -228,6 +228,24 @@
               </div>
 
               <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+                  Status <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="form.status"
+                  id="status"
+                  required
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  :class="{ 'border-red-300': errors.status }"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="terminated">Terminated</option>
+                </select>
+                <p v-if="errors.status" class="mt-1 text-sm text-red-600">{{ errors.status[0] }}</p>
+              </div>
+
+              <div>
                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
                   Start Date <span class="text-red-500">*</span>
                 </label>
@@ -602,6 +620,7 @@ const form = reactive({
   position_uuid: '',
   manager_uuid: '',
   employment_type: 'full_time',
+  status: 'active',
   start_date: '',
   hire_date: '',
   is_director: false,
@@ -635,7 +654,7 @@ const canProceed = computed(() => {
     case 1:
       return form.first_name && form.last_name && form.employee_id && form.email
     case 2:
-      return form.department_uuid && form.position_uuid && form.employment_type && form.start_date && form.hire_date
+      return form.department_uuid && form.position_uuid && form.employment_type && form.status && form.start_date && form.hire_date
     case 3:
       return form.salary
     case 4:
@@ -722,7 +741,7 @@ const submitForm = async () => {
       // Go back to the step with errors
       if (errors.value.first_name || errors.value.last_name || errors.value.employee_id || errors.value.email) {
         currentStep.value = 1
-      } else if (errors.value.department_uuid || errors.value.position_uuid) {
+      } else if (errors.value.department_uuid || errors.value.position_uuid || errors.value.status || errors.value.employment_type) {
         currentStep.value = 2
       } else if (errors.value.salary) {
         currentStep.value = 3
