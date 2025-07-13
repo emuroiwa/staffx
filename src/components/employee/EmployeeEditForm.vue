@@ -230,16 +230,16 @@
           </div>
 
           <div>
-            <label for="currency" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+            <label for="currency_uuid" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
             <select
-              v-model="form.currency"
-              id="currency"
+              v-model="form.currency_uuid"
+              id="currency_uuid"
               class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="ZAR">ZAR</option>
+              <option value="">Select Currency</option>
+              <option v-for="currency in currencies" :key="currency.uuid" :value="currency.uuid">
+                {{ currency.display_name }}
+              </option>
             </select>
           </div>
 
@@ -284,9 +284,10 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useEmployeeStore } from '@/stores/employee'
 import { useNotificationStore } from '@/stores/notification'
+import { useCurrencyStore } from '@/stores/currency'
 
 const props = defineProps({
   employee: {
@@ -299,11 +300,13 @@ const emit = defineEmits(['updated', 'cancelled'])
 
 const employeeStore = useEmployeeStore()
 const notificationStore = useNotificationStore()
+const currencyStore = useCurrencyStore()
 
 const submitting = ref(false)
 const errors = ref({})
 const departments = ref([])
 const positions = ref([])
+const currencies = computed(() => currencyStore.activeCurrencies)
 
 const form = reactive({
   first_name: props.employee.first_name || '',
@@ -320,7 +323,7 @@ const form = reactive({
   start_date: props.employee.start_date || '',
   hire_date: props.employee.hire_date || '',
   salary: props.employee.salary || '',
-  currency: props.employee.currency || 'USD',
+  currency_uuid: props.employee.currency_uuid || '',
   pay_frequency: props.employee.pay_frequency || 'monthly'
 })
 
@@ -369,8 +372,17 @@ const handleSubmit = async () => {
   }
 }
 
+const fetchCurrencies = async () => {
+  try {
+    await currencyStore.fetchCurrencies()
+  } catch (error) {
+    console.error('Failed to fetch currencies:', error)
+  }
+}
+
 onMounted(() => {
   fetchDepartments()
   fetchPositions()
+  fetchCurrencies()
 })
 </script>

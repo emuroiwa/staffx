@@ -1,19 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-content-light dark:bg-content-dark transition-colors duration-200">
     <!-- Page Header -->
-    <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Employees</h1>
-            <p class="mt-1 text-sm text-gray-500">Manage your organization's employees</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your organization's employees</p>
           </div>
           <div class="flex items-center space-x-3">
             <!-- Quick Actions -->
             <button
               @click="exportEmployees"
               data-testid="export-btn"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
             >
               <ArrowDownTrayIcon class="w-4 h-4 mr-2" />
               Export
@@ -21,7 +21,7 @@
             <button
               @click="showCreateModal = true"
               data-testid="add-employee-btn"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
             >
               <PlusIcon class="w-4 h-4 mr-2" />
               Add Employee
@@ -35,49 +35,49 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <UsersIcon class="h-8 w-8 text-blue-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Employees</p>
-              <p class="text-2xl font-bold text-gray-900">{{ statistics?.total_employees || 0 }}</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Employees</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ statistics?.total_employees || 0 }}</p>
             </div>
           </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <CheckCircleIcon class="h-8 w-8 text-green-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Active</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active</p>
               <p class="text-2xl font-bold text-gray-900">{{ statistics?.active_employees || 0 }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <StarIcon class="h-8 w-8 text-yellow-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Directors</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Directors</p>
               <p class="text-2xl font-bold text-gray-900">{{ statistics?.directors || 0 }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <CurrencyDollarIcon class="h-8 w-8 text-green-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Payroll</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Payroll</p>
               <p class="text-2xl font-bold text-gray-900">${{ formatCurrency(statistics?.total_payroll || 0) }}</p>
             </div>
           </div>

@@ -90,6 +90,18 @@ export interface CompanySettings {
   }
 }
 
+export interface Currency {
+  uuid: string
+  code: string
+  name: string
+  symbol: string
+  display_name: string
+  exchange_rate: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface Employee {
   id: number
   company_id: number
@@ -103,7 +115,9 @@ export interface Employee {
   position?: string | null
   employment_type?: 'full_time' | 'part_time' | 'contract' | null
   salary?: number | null
-  currency?: string | null
+  currency_uuid?: string | null
+  currency?: Currency | null
+  formatted_salary?: string
   hire_date?: string | null
   termination_date?: string | null
   status: 'active' | 'inactive' | 'terminated'
