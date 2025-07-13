@@ -1,23 +1,23 @@
 <template>
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col">
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
         <div>
-          <h3 class="text-lg font-semibold text-gray-900">Add New Employee</h3>
-          <p class="text-sm text-gray-500 mt-1">Step {{ currentStep }} of {{ totalSteps }}</p>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Employee</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Step {{ currentStep }} of {{ totalSteps }}</p>
         </div>
         <button
           @click="$emit('close')"
           data-testid="close-btn"
-          class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
         >
           <XMarkIcon class="w-6 h-6" />
         </button>
       </div>
 
       <!-- Progress Bar -->
-      <div class="px-6 py-4 border-b border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between mb-2">
           <span
             v-for="(step, index) in steps"
@@ -35,9 +35,9 @@
             {{ step.title }}
           </span>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            class="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
             :style="{ width: `${(currentStep / totalSteps) * 100}%` }"
           ></div>
         </div>
@@ -50,13 +50,13 @@
           <div v-if="currentStep === 1" class="space-y-6">
             <div class="text-center mb-6">
               <UserPlusIcon class="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <h4 class="text-xl font-semibold text-gray-900">Basic Information</h4>
-              <p class="text-gray-500">Let's start with the employee's basic details</p>
+              <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Basic Information</h4>
+              <p class="text-gray-500 dark:text-gray-400">Let's start with the employee's basic details</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   First Name <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -64,14 +64,14 @@
                   type="text"
                   id="first_name"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.first_name }"
                 />
                 <p v-if="errors.first_name" class="mt-1 text-sm text-red-600">{{ errors.first_name[0] }}</p>
               </div>
 
               <div>
-                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Last Name <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -79,14 +79,14 @@
                   type="text"
                   id="last_name"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.last_name }"
                 />
                 <p v-if="errors.last_name" class="mt-1 text-sm text-red-600">{{ errors.last_name[0] }}</p>
               </div>
 
               <div>
-                <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="employee_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Employee ID <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -95,14 +95,14 @@
                   id="employee_id"
                   required
                   placeholder="e.g., EMP001"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.employee_id }"
                 />
                 <p v-if="errors.employee_id" class="mt-1 text-sm text-red-600">{{ errors.employee_id[0] }}</p>
               </div>
 
               <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email Address <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -110,40 +110,40 @@
                   type="email"
                   id="email"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.email }"
                 />
                 <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email[0] }}</p>
               </div>
 
               <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
                 <input
                   v-model="form.phone"
                   type="tel"
                   id="phone"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <label for="dob" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date of Birth</label>
                 <input
                   v-model="form.dob"
                   type="date"
                   id="dob"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <div>
-              <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
               <textarea
                 v-model="form.address"
                 id="address"
                 rows="3"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 placeholder="Full address..."
               ></textarea>
             </div>
@@ -153,20 +153,20 @@
           <div v-if="currentStep === 2" class="space-y-6">
             <div class="text-center mb-6">
               <BriefcaseIcon class="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <h4 class="text-xl font-semibold text-gray-900">Employment Details</h4>
-              <p class="text-gray-500">Set up the employee's role and department</p>
+              <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Employment Details</h4>
+              <p class="text-gray-500 dark:text-gray-400">Set up the employee's role and department</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="department_uuid" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="department_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Department <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="form.department_uuid"
                   id="department_uuid"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.department_uuid }"
                 >
                   <option value="">Select Department</option>
@@ -178,14 +178,14 @@
               </div>
 
               <div>
-                <label for="position_uuid" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="position_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Position <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="form.position_uuid"
                   id="position_uuid"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.position_uuid }"
                 >
                   <option value="">Select Position</option>
@@ -197,11 +197,11 @@
               </div>
 
               <div>
-                <label for="manager_uuid" class="block text-sm font-medium text-gray-700 mb-1">Manager</label>
+                <label for="manager_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Manager</label>
                 <select
                   v-model="form.manager_uuid"
                   id="manager_uuid"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 >
                   <option value="">No Manager</option>
                   <option v-for="manager in potentialManagers" :key="manager.uuid" :value="manager.uuid">
@@ -211,14 +211,14 @@
               </div>
 
               <div>
-                <label for="employment_type" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="employment_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Employment Type <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="form.employment_type"
                   id="employment_type"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 >
                   <option value="full_time">Full Time</option>
                   <option value="part_time">Part Time</option>
@@ -228,14 +228,14 @@
               </div>
 
               <div>
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Status <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="form.status"
                   id="status"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   :class="{ 'border-red-300': errors.status }"
                 >
                   <option value="active">Active</option>
@@ -246,7 +246,7 @@
               </div>
 
               <div>
-                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Start Date <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -254,12 +254,12 @@
                   type="date"
                   id="start_date"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label for="hire_date" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="hire_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Hire Date <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -267,14 +267,14 @@
                   type="date"
                   id="hire_date"
                   required
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <!-- Employment Flags -->
             <div class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-900">Employment Flags</h5>
+              <h5 class="text-sm font-medium text-gray-900 dark:text-white">Employment Flags</h5>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label class="flex items-center">
                   <input
@@ -282,7 +282,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">Director</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Director</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -290,7 +290,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">Independent Contractor</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Independent Contractor</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -298,7 +298,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">UIF Exempt</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">UIF Exempt</span>
                 </label>
               </div>
             </div>
@@ -308,18 +308,18 @@
           <div v-if="currentStep === 3" class="space-y-6">
             <div class="text-center mb-6">
               <CurrencyDollarIcon class="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <h4 class="text-xl font-semibold text-gray-900">Compensation & Benefits</h4>
-              <p class="text-gray-500">Configure salary and payment details</p>
+              <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Compensation & Benefits</h4>
+              <p class="text-gray-500 dark:text-gray-400">Configure salary and payment details</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="salary" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Salary <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 sm:text-sm">{{ selectedCurrencySymbol }}</span>
+                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">{{ selectedCurrencySymbol }}</span>
                   </div>
                   <input
                     v-model="form.salary"
@@ -336,11 +336,11 @@
               </div>
 
               <div>
-                <label for="currency_uuid" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                <label for="currency_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
                 <select
                   v-model="form.currency_uuid"
                   id="currency_uuid"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 >
                   <option value="">Select Currency</option>
                   <option v-for="currency in currencies" :key="currency.uuid" :value="currency.uuid">
@@ -350,11 +350,11 @@
               </div>
 
               <div>
-                <label for="pay_frequency" class="block text-sm font-medium text-gray-700 mb-1">Pay Frequency</label>
+                <label for="pay_frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pay Frequency</label>
                 <select
                   v-model="form.pay_frequency"
                   id="pay_frequency"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 >
                   <option value="weekly">Weekly</option>
                   <option value="bi_weekly">Bi-weekly</option>
@@ -365,53 +365,53 @@
               </div>
 
               <div>
-                <label for="tax_number" class="block text-sm font-medium text-gray-700 mb-1">Tax Number</label>
+                <label for="tax_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tax Number</label>
                 <input
                   v-model="form.tax_number"
                   type="text"
                   id="tax_number"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <!-- Bank Details -->
             <div class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-900">Bank Details</h5>
+              <h5 class="text-sm font-medium text-gray-900 dark:text-white">Bank Details</h5>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label for="bank_name" class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                  <label for="bank_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bank Name</label>
                   <input
                     v-model="form.bank_details.bank_name"
                     type="text"
                     id="bank_name"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
                 <div>
-                  <label for="account_number" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                  <label for="account_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Number</label>
                   <input
                     v-model="form.bank_details.account_number"
                     type="text"
                     id="account_number"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
                 <div>
-                  <label for="routing_number" class="block text-sm font-medium text-gray-700 mb-1">Routing Number</label>
+                  <label for="routing_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Routing Number</label>
                   <input
                     v-model="form.bank_details.routing_number"
                     type="text"
                     id="routing_number"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
                 <div>
-                  <label for="account_type" class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                  <label for="account_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Type</label>
                   <select
                     v-model="form.bank_details.account_type"
                     id="account_type"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   >
                     <option value="checking">Checking</option>
                     <option value="savings">Savings</option>
@@ -425,59 +425,59 @@
           <div v-if="currentStep === 4" class="space-y-6">
             <div class="text-center mb-6">
               <DocumentTextIcon class="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <h4 class="text-xl font-semibold text-gray-900">Additional Information</h4>
-              <p class="text-gray-500">Complete the employee profile</p>
+              <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Additional Information</h4>
+              <p class="text-gray-500 dark:text-gray-400">Complete the employee profile</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="national_id" class="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+                <label for="national_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">National ID</label>
                 <input
                   v-model="form.national_id"
                   type="text"
                   id="national_id"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label for="passport_number" class="block text-sm font-medium text-gray-700 mb-1">Passport Number</label>
+                <label for="passport_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passport Number</label>
                 <input
                   v-model="form.passport_number"
                   type="text"
                   id="passport_number"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Emergency Contact Name
                 </label>
                 <input
                   v-model="form.emergency_contact_name"
                   type="text"
                   id="emergency_contact_name"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Emergency Contact Phone
                 </label>
                 <input
                   v-model="form.emergency_contact_phone"
                   type="tel"
                   id="emergency_contact_phone"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <!-- Benefits -->
             <div class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-900">Benefits</h5>
+              <h5 class="text-sm font-medium text-gray-900 dark:text-white">Benefits</h5>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label class="flex items-center">
                   <input
@@ -485,7 +485,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">Health Insurance</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Health Insurance</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -493,7 +493,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">Dental Insurance</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Dental Insurance</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -501,19 +501,19 @@
                     type="checkbox"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">Retirement Plan</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Retirement Plan</span>
                 </label>
               </div>
             </div>
 
             <!-- Notes -->
             <div>
-              <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
               <textarea
                 v-model="form.notes"
                 id="notes"
                 rows="4"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 placeholder="Additional notes about the employee..."
               ></textarea>
             </div>
@@ -522,12 +522,12 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-between p-6 border-t border-gray-200">
+      <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700">
         <button
           v-if="currentStep > 1"
           @click="goToPreviousStep"
           type="button"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
         >
           <ArrowLeftIcon class="w-4 h-4 mr-2" />
           Previous
@@ -538,7 +538,7 @@
           <button
             @click="$emit('close')"
             type="button"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
           >
             Cancel
           </button>
@@ -546,7 +546,7 @@
             v-if="currentStep < totalSteps"
             @click="goToNextStep"
             type="button"
-            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
             :disabled="!canProceed"
           >
             Next
@@ -556,7 +556,7 @@
             v-else
             @click="submitForm"
             type="button"
-            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 bg-green-600 dark:bg-green-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
             :disabled="submitting"
           >
             <span v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
@@ -573,6 +573,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useEmployeeStore } from '@/stores/employee'
 import { useNotificationStore } from '@/stores/notification'
 import { useCurrencyStore } from '@/stores/currency'
+import { useTheme } from '@/composables/useTheme'
 import {
   XMarkIcon,
   CheckIcon,
@@ -589,6 +590,7 @@ const emit = defineEmits(['close', 'created'])
 const employeeStore = useEmployeeStore()
 const notificationStore = useNotificationStore()
 const currencyStore = useCurrencyStore()
+const { isDark } = useTheme()
 
 // Component state
 const currentStep = ref(1)

@@ -1,12 +1,12 @@
 <template>
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">Add New Department</h3>
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Department</h3>
         <button
           @click="$emit('close')"
-          class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
         >
           <XMarkIcon class="w-6 h-6" />
         </button>
@@ -16,7 +16,7 @@
       <div class="flex-1 overflow-y-auto p-6">
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <div>
-            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Department Name <span class="text-red-500">*</span>
             </label>
             <input
@@ -24,18 +24,18 @@
               type="text"
               id="name"
               required
-              class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               placeholder="e.g., Engineering"
             />
           </div>
 
           <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea
               v-model="form.description"
               id="description"
               rows="3"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               placeholder="Department description..."
             ></textarea>
           </div>
@@ -47,7 +47,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="ml-2 text-sm text-gray-700">Active Department</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Active Department</span>
             </label>
           </div>
         </form>
