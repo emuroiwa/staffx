@@ -54,11 +54,11 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-end p-6 border-t border-gray-200 space-x-3">
+      <div class="flex items-center justify-end p-6 border-t border-gray-200 dark:border-gray-700 space-x-3">
         <button
           @click="$emit('close')"
           type="button"
-          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
         >
           Cancel
         </button>
@@ -66,7 +66,7 @@
           @click="handleSubmit"
           type="button"
           :disabled="submitting"
-          class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <span v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
           {{ submitting ? 'Creating...' : 'Create Department' }}

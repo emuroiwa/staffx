@@ -28,7 +28,7 @@
           </div>
           <div>
             <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
               {{ position.is_active ? 'Active' : 'Inactive' }}
             </span>
           </div>
@@ -98,7 +98,7 @@
           v-if="!isEditing"
           @click="startEditing"
           type="button"
-          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600"
+          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
         >
           Edit Position
         </button>
@@ -108,7 +108,7 @@
           @click="handleSubmit"
           type="button"
           :disabled="submitting"
-          class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <span v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
           {{ submitting ? 'Updating...' : 'Update Position' }}

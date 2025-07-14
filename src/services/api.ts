@@ -85,7 +85,9 @@ api.interceptors.response.use(
           
           return api(originalRequest)
         } else {
-          throw new Error('No token available')
+                  localStorage.removeItem('authToken')
+        localStorage.removeItem('user')
+        localStorage.removeItem('isAuthenticated')
         }
       } catch (refreshError) {
         // Refresh failed, redirect to login
