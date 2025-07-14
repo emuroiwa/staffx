@@ -20,7 +20,7 @@
             v-if="!themeStore.sidebarCollapsed"
             class="text-xl font-bold text-gray-900 dark:text-white"
           >
-            GM58 HR
+            StaffX
           </span>
         </transition>
       </div>
@@ -144,21 +144,84 @@
         </transition>
       </div>
 
-      <!-- Payroll -->
-      <router-link to="/payroll" v-slot="{ isActive }" class="block">
-        <div
-          @click="themeStore.hideMobileSidebar"
-          :class="['sidebar-item group', isActive ? 'active' : 'text-gray-700 dark:text-gray-300']"
-          :title="themeStore.sidebarCollapsed ? 'Payroll' : ''"
+      <!-- Payroll Management -->
+      <div>
+        <!-- Main Payroll Menu -->
+        <button
+          @click="togglePayrollMenu"
+          :class="[
+            'sidebar-item w-full group',
+            isPayrollModuleActive ? 'active' : 'text-gray-700 dark:text-gray-300'
+          ]"
+          :title="themeStore.sidebarCollapsed ? 'Payroll Management' : ''"
         >
-          <CreditCard :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
-          <transition name="fade">
-            <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
-              Payroll
-            </span>
-          </transition>
-        </div>
-      </router-link>
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center">
+              <CreditCard :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
+              <transition name="fade">
+                <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
+                  Payroll Management
+                </span>
+              </transition>
+            </div>
+            <transition name="fade">
+              <ChevronDown 
+                v-if="!themeStore.sidebarCollapsed"
+                :class="['w-4 h-4 transition-transform duration-200', { 'transform rotate-180': showPayrollMenu }]"
+              />
+            </transition>
+          </div>
+        </button>
+
+        <!-- Payroll Submenu -->
+        <transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="transform scale-95 opacity-0"
+          enter-to-class="transform scale-100 opacity-100"
+          leave-active-class="transition duration-75 ease-in"
+          leave-from-class="transform scale-100 opacity-100"
+          leave-to-class="transform scale-95 opacity-0"
+        >
+          <div v-show="showPayrollMenu && !themeStore.sidebarCollapsed" class="mt-2 ml-6 space-y-1">
+            <router-link to="/payroll" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <Calculator class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Payroll Processing</span>
+              </div>
+            </router-link>
+            <router-link to="/payroll/templates" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <FileText class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Payroll Templates</span>
+              </div>
+            </router-link>
+            <router-link to="/payroll/employee-items" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <UserIcon class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Employee Items</span>
+              </div>
+            </router-link>
+            <router-link to="/payroll/reports" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <BarChart3 class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Payroll Reports</span>
+              </div>
+            </router-link>
+          </div>
+        </transition>
+      </div>
 
       <!-- Reports -->
       <router-link to="/reports" v-slot="{ isActive }" class="block">
@@ -254,7 +317,8 @@ import {
   Building,
   BarChart3,
   FileText,
-  Settings
+  Settings,
+  Calculator
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -263,9 +327,16 @@ const authStore = useAuthStore()
 
 const showMobileSidebar = computed(() => themeStore.showMobileSidebar)
 const showEmployeeMenu = ref(false)
+const showPayrollMenu = ref(false)
 
 const isEmployeeModuleActive = computed(() => {
   return ['/employees', '/positions', '/departments', '/organogram'].some(path => 
+    route.path.startsWith(path)
+  )
+})
+
+const isPayrollModuleActive = computed(() => {
+  return ['/payroll'].some(path => 
     route.path.startsWith(path)
   )
 })
@@ -274,17 +345,25 @@ const toggleEmployeeMenu = () => {
   showEmployeeMenu.value = !showEmployeeMenu.value
 }
 
-// Auto-expand employee menu if we're on an employee-related page
-watch(() => route.path, (newPath) => {
+const togglePayrollMenu = () => {
+  showPayrollMenu.value = !showPayrollMenu.value
+}
+
+// Auto-expand menus if we're on related pages
+watch(() => route.path, () => {
   if (isEmployeeModuleActive.value) {
     showEmployeeMenu.value = true
   }
+  if (isPayrollModuleActive.value) {
+    showPayrollMenu.value = true
+  }
 }, { immediate: true })
 
-// Collapse employee menu when sidebar is collapsed
+// Collapse menus when sidebar is collapsed
 watch(() => themeStore.sidebarCollapsed, (collapsed) => {
   if (collapsed) {
     showEmployeeMenu.value = false
+    showPayrollMenu.value = false
   }
 })
 </script>

@@ -196,8 +196,38 @@ const routes = [
         name: 'Payroll',
         component: Payroll,
         meta: {
-          title: 'Payroll',
+          title: 'Payroll Processing',
           icon: 'credit-card',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'templates',
+        name: 'PayrollTemplates',
+        component: () => import('@/pages/payroll/PayrollTemplateList.vue'),
+        meta: {
+          title: 'Payroll Templates',
+          icon: 'file-text',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'employee-items',
+        name: 'EmployeePayrollItems',
+        component: () => import('@/pages/payroll/EmployeePayrollItemList.vue'),
+        meta: {
+          title: 'Employee Items',
+          icon: 'user',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'reports',
+        name: 'PayrollReports',
+        component: () => import('@/views/PayrollReports.vue'),
+        meta: {
+          title: 'Payroll Reports',
+          icon: 'bar-chart-3',
           requiresAuth: true
         }
       }
