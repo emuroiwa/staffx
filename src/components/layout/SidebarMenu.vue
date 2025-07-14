@@ -81,7 +81,7 @@
               <Users :class="['w-5 h-5 flex-shrink-0', themeStore.sidebarCollapsed ? 'mx-auto' : 'mr-3']" />
               <transition name="fade">
                 <span v-if="!themeStore.sidebarCollapsed" class="text-sm font-medium">
-                  Employee Management
+                  Staff Management
                 </span>
               </transition>
             </div>

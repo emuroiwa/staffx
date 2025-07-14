@@ -442,14 +442,22 @@ const fetchItems = async (page = 1) => {
     }
 
     const response = await get('/employee-payroll-items', { params })
-    items.value = response.data.data
-    pagination.value = {
-      current_page: response.data.current_page,
-      last_page: response.data.last_page,
-      total: response.data.total,
-      per_page: response.data.per_page
+    
+    // Ensure we have the expected response structure
+    if (response.data && response.data.data && response.data.data.data) {
+      items.value = response.data.data.data || []
+      pagination.value = {
+        current_page: response.data.data.current_page || 1,
+        last_page: response.data.data.last_page || 1,
+        total: response.data.data.total || 0,
+        per_page: response.data.data.per_page || 15
+      }
+    } else {
+      items.value = []
+      console.warn('Unexpected API response structure:', response.data)
     }
   } catch (error) {
+    items.value = [] // Ensure items is always an array
     showNotification('Error fetching payroll items', 'error')
     console.error('Error fetching items:', error)
   } finally {
@@ -462,8 +470,16 @@ const fetchEmployees = async () => {
     const response = await get('/employees', {
       params: { per_page: 1000 } // Get all employees for filter
     })
-    employees.value = response.data.data
+    
+    // Ensure we have the expected response structure
+    if (response.data && response.data.data && response.data.data.data) {
+      employees.value = response.data.data.data || []
+    } else {
+      employees.value = []
+      console.warn('Unexpected employees API response structure:', response.data)
+    }
   } catch (error) {
+    employees.value = [] // Ensure employees is always an array
     console.error('Error fetching employees:', error)
   }
 }
@@ -594,15 +610,15 @@ const getInitials = (firstName, lastName) => {
 
 // Computed statistics
 const activeItemsCount = computed(() => {
-  return items.value.filter(item => item.status === 'active').length
+  return Array.isArray(items.value) ? items.value.filter(item => item.status === 'active').length : 0
 })
 
 const pendingApprovalCount = computed(() => {
-  return items.value.filter(item => item.status === 'pending_approval').length
+  return Array.isArray(items.value) ? items.value.filter(item => item.status === 'pending_approval').length : 0
 })
 
 const suspendedCount = computed(() => {
-  return items.value.filter(item => item.status === 'suspended').length
+  return Array.isArray(items.value) ? items.value.filter(item => item.status === 'suspended').length : 0
 })
 
 onMounted(() => {

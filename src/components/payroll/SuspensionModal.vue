@@ -1,11 +1,27 @@
 <template>
-  <Modal
-    :is-open="isOpen"
-    title="Suspend Payroll Item"
-    @close="$emit('close')"
-    size="medium"
-  >
-    <div class="space-y-6">
+  <div v-if="isOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Suspend Payroll Item
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Temporarily suspend this payroll item
+          </p>
+        </div>
+        <button
+          @click="$emit('close')"
+          class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
+        >
+          <XMarkIcon class="w-6 h-6" />
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="space-y-6">
       <!-- Item Information -->
       <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
         <h3 class="text-lg font-medium text-orange-900 dark:text-orange-100 mb-3">
@@ -82,7 +98,7 @@
             v-model="form.suspension_reason"
             rows="4"
             required
-            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
             placeholder="Please provide a reason for suspending this item"
           ></textarea>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -98,7 +114,7 @@
           <input
             v-model="form.suspension_effective_from"
             type="date"
-            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
           >
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Leave empty to suspend immediately from today
@@ -133,30 +149,33 @@
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="btn btn-secondary"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            :disabled="loading || !form.suspension_reason"
-            class="btn btn-danger"
-          >
-            <span v-if="loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Suspend Item
-          </button>
+        </form>
         </div>
-      </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
+        <button
+          type="button"
+          @click="$emit('close')"
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          @click="suspendItem"
+          :disabled="loading || !form.suspension_reason"
+          class="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-700 border border-transparent rounded-lg hover:bg-red-700 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          <span v-if="loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Suspend Item
+        </button>
+      </div>
     </div>
-  </Modal>
+  </div>
 </template>
 
 <script>
@@ -165,12 +184,12 @@ import { useApi } from '@/composables/useApi'
 import { useNotifications } from '@/composables/useNotifications'
 import { formatCurrency } from '@/utils/currency'
 import { formatDate } from '@/utils/date'
-import Modal from '@/components/shared/Modal.vue'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 export default {
   name: 'SuspensionModal',
   components: {
-    Modal
+    XMarkIcon
   },
   props: {
     isOpen: {

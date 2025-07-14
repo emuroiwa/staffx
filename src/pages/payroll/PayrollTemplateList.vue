@@ -369,14 +369,22 @@ const fetchTemplates = async (page = 1) => {
     }
 
     const response = await get('/payroll-templates', { params })
-    templates.value = response.data.data
-    pagination.value = {
-      current_page: response.data.current_page,
-      last_page: response.data.last_page,
-      total: response.data.total,
-      per_page: response.data.per_page
+    
+    // Ensure we have the expected response structure
+    if (response.data && response.data.data && response.data.data.data) {
+      templates.value = response.data.data.data || []
+      pagination.value = {
+        current_page: response.data.data.current_page || 1,
+        last_page: response.data.data.last_page || 1,
+        total: response.data.data.total || 0,
+        per_page: response.data.data.per_page || 15
+      }
+    } else {
+      templates.value = []
+      console.warn('Unexpected API response structure:', response.data)
     }
   } catch (error) {
+    templates.value = [] // Ensure templates is always an array
     showNotification('Error fetching templates', 'error')
     console.error('Error fetching templates:', error)
   } finally {
@@ -476,15 +484,15 @@ const formatCalculationMethod = (method) => {
 
 // Computed statistics
 const activeTemplatesCount = computed(() => {
-  return templates.value.filter(t => t.is_active).length
+  return Array.isArray(templates.value) ? templates.value.filter(t => t.is_active).length : 0
 })
 
 const allowancesCount = computed(() => {
-  return templates.value.filter(t => t.type === 'allowance').length
+  return Array.isArray(templates.value) ? templates.value.filter(t => t.type === 'allowance').length : 0
 })
 
 const deductionsCount = computed(() => {
-  return templates.value.filter(t => t.type === 'deduction').length
+  return Array.isArray(templates.value) ? templates.value.filter(t => t.type === 'deduction').length : 0
 })
 
 // Close dropdown when clicking outside

@@ -1,11 +1,27 @@
 <template>
-  <Modal
-    :is-open="isOpen"
-    title="Item Calculation Preview"
-    @close="$emit('close')"
-    size="medium"
-  >
-    <div class="space-y-6">
+  <div v-if="isOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Item Calculation Preview
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Test calculation with different parameters
+          </p>
+        </div>
+        <button
+          @click="$emit('close')"
+          class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition-colors duration-200"
+        >
+          <XMarkIcon class="w-6 h-6" />
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="space-y-6">
       <!-- Item Info -->
       <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -45,7 +61,7 @@
             step="0.01"
             min="0"
             required
-            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
             placeholder="Enter gross salary"
           >
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -60,7 +76,7 @@
           <input
             v-model="form.calculation_date"
             type="date"
-            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
           >
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Used to check if the item is effective on this date
@@ -70,7 +86,7 @@
         <button
           type="submit"
           :disabled="loading || !form.gross_salary"
-          class="w-full btn btn-primary"
+          class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 border border-transparent rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
         >
           <span v-if="loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
           Calculate Preview
@@ -121,31 +137,31 @@
             Item Settings Used:
           </h5>
           <div class="space-y-1 text-xs">
-            <div v-if="result.item_settings.amount" class="flex justify-between">
+            <div v-if="result.item_settings?.amount" class="flex justify-between">
               <span class="text-green-600 dark:text-green-400">Fixed Amount:</span>
               <span class="text-green-800 dark:text-green-200">
                 {{ formatCurrency(result.item_settings.amount) }}
               </span>
             </div>
-            <div v-if="result.item_settings.percentage" class="flex justify-between">
+            <div v-if="result.item_settings?.percentage" class="flex justify-between">
               <span class="text-green-600 dark:text-green-400">Percentage:</span>
               <span class="text-green-800 dark:text-green-200">
                 {{ result.item_settings.percentage }}%
               </span>
             </div>
-            <div v-if="result.item_settings.formula_expression" class="flex justify-between">
+            <div v-if="result.item_settings?.formula_expression" class="flex justify-between">
               <span class="text-green-600 dark:text-green-400">Formula:</span>
               <span class="text-green-800 dark:text-green-200 font-mono text-xs break-all">
                 {{ result.item_settings.formula_expression }}
               </span>
             </div>
-            <div v-if="result.item_settings.minimum_amount" class="flex justify-between">
+            <div v-if="result.item_settings?.minimum_amount" class="flex justify-between">
               <span class="text-green-600 dark:text-green-400">Minimum:</span>
               <span class="text-green-800 dark:text-green-200">
                 {{ formatCurrency(result.item_settings.minimum_amount) }}
               </span>
             </div>
-            <div v-if="result.item_settings.maximum_amount" class="flex justify-between">
+            <div v-if="result.item_settings?.maximum_amount" class="flex justify-between">
               <span class="text-green-600 dark:text-green-400">Maximum:</span>
               <span class="text-green-800 dark:text-green-200">
                 {{ formatCurrency(result.item_settings.maximum_amount) }}
@@ -182,25 +198,28 @@
         <p class="text-red-700 dark:text-red-300">{{ error }}</p>
       </div>
 
-      <!-- Actions -->
-      <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"
           @click="clearResults"
-          class="btn btn-secondary"
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
         >
           Clear Results
         </button>
         <button
           type="button"
           @click="$emit('close')"
-          class="btn btn-primary"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 border border-transparent rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
         >
           Close
         </button>
       </div>
     </div>
-  </Modal>
+  </div>
 </template>
 
 <script>
@@ -208,12 +227,12 @@ import { ref, reactive, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { formatCurrency } from '@/utils/currency'
 import { formatDate } from '@/utils/date'
-import Modal from '@/components/shared/Modal.vue'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 export default {
   name: 'CalculationPreviewModal',
   components: {
-    Modal
+    XMarkIcon
   },
   props: {
     isOpen: {
