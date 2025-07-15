@@ -403,8 +403,14 @@ function validateForm() {
 async function loadCountries() {
   try {
     const response = await get('/countries')
-    countries.value = response.data
-    console.log(response.data);
+    // Extract data from API response structure
+    const countriesData = response.data.data || response.data
+    // Ensure boolean conversion for payroll support
+    countries.value = countriesData.map(country => ({
+      ...country,
+      is_supported_for_payroll: Boolean(country.is_supported_for_payroll)
+    }))
+    console.log('Countries loaded:', countries.value)
   } catch (error) {
     console.error('Failed to load countries:', error)
   }

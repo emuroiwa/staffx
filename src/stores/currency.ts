@@ -6,6 +6,8 @@ import currencyService from '@/services/currency'
 export const useCurrencyStore = defineStore('currency', () => {
   // State
   const currencies = ref<Currency[]>([])
+  const userCurrency = ref<Currency | null>(null)
+  const companyCurrency = ref<Currency | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -25,6 +27,22 @@ export const useCurrencyStore = defineStore('currency', () => {
   const baseCurrency = computed(() => 
     currencies.value.find(currency => currency.code === 'USD')
   )
+
+  // Current currency - prioritizes user currency, then company currency, then default ZAR
+  const currentCurrency = computed(() => {
+    return userCurrency.value || companyCurrency.value || {
+      code: 'ZAR',
+      symbol: 'R',
+      display_name: 'South African Rand',
+      is_active: true
+    }
+  })
+
+  // Get current currency symbol
+  const currentSymbol = computed(() => currentCurrency.value?.symbol || 'R')
+
+  // Get current currency code
+  const currentCode = computed(() => currentCurrency.value?.code || 'ZAR')
 
   // Actions
   async function fetchCurrencies() {
@@ -72,9 +90,46 @@ export const useCurrencyStore = defineStore('currency', () => {
     error.value = null
   }
 
+  // Set user/company currency from login data
+  function setUserCurrency(currency: Currency | null) {
+    userCurrency.value = currency
+  }
+
+  function setCompanyCurrency(currency: Currency | null) {
+    companyCurrency.value = currency
+  }
+
+  // Initialize currency from user/company data
+  function initializeCurrency(userData: any, companyData: any) {
+    // Set user currency if available
+    if (userData?.currency_uuid && currencies.value.length > 0) {
+      const userCurrencyData = getCurrencyByUuid.value(userData.currency_uuid)
+      if (userCurrencyData) {
+        setUserCurrency(userCurrencyData)
+      }
+    }
+
+    // Set company currency if available and no user currency
+    if (!userCurrency.value && companyData?.currency_uuid && currencies.value.length > 0) {
+      const companyCurrencyData = getCurrencyByUuid.value(companyData.currency_uuid)
+      if (companyCurrencyData) {
+        setCompanyCurrency(companyCurrencyData)
+      }
+    }
+  }
+
+  // Clear currency data on logout
+  function clearUserData() {
+    userCurrency.value = null
+    companyCurrency.value = null
+    error.value = null
+  }
+
   return {
     // State
     currencies,
+    userCurrency,
+    companyCurrency,
     loading,
     error,
 
@@ -83,10 +138,17 @@ export const useCurrencyStore = defineStore('currency', () => {
     getCurrencyByCode,
     getCurrencyByUuid,
     baseCurrency,
+    currentCurrency,
+    currentSymbol,
+    currentCode,
 
     // Actions
     fetchCurrencies,
     fetchCurrency,
-    clearCurrencies
+    clearCurrencies,
+    setUserCurrency,
+    setCompanyCurrency,
+    initializeCurrency,
+    clearUserData
   }
 })

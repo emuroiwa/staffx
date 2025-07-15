@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import authService from '@/services/auth'
 import type { LoginCredentials, User } from '@/services/auth'
+import { useCurrencyStore } from './currency'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -48,6 +49,22 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Initialize currency data from login response
+  async function initializeCurrencyData(loginData: any) {
+    const currencyStore = useCurrencyStore()
+    
+    try {
+      // Fetch all available currencies first
+      await currencyStore.fetchCurrencies()
+      
+      // Initialize user and company currency from login data
+      currencyStore.initializeCurrency(loginData.user, loginData.company)
+    } catch (error) {
+      console.error('Failed to initialize currency data:', error)
+      // Continue with login even if currency initialization fails
+    }
+  }
+
   async function login(credentials: LoginCredentials) {
     loading.value = true
     try {
@@ -60,6 +77,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('authToken', response.data.token)
       localStorage.setItem('isAuthenticated', 'true')
       localStorage.setItem('user', JSON.stringify(user.value))
+
+      // Initialize currency data after successful login
+      await initializeCurrencyData(response.data)
 
       return user.value
     } catch (error: any) {
@@ -171,6 +191,10 @@ export const useAuthStore = defineStore('auth', () => {
       // Clear local state
       user.value = null
       isAuthenticated.value = false
+
+      // Clear currency data
+      const currencyStore = useCurrencyStore()
+      currencyStore.clearUserData()
 
       // Clear stored auth data
       localStorage.removeItem('isAuthenticated')

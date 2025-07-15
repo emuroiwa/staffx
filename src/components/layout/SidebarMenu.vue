@@ -140,6 +140,15 @@
                 <span class="text-sm">Organogram</span>
               </div>
             </router-link>
+            <router-link to="/employees/payroll" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <DollarSign class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Employee Payroll</span>
+              </div>
+            </router-link>
           </div>
         </transition>
       </div>
@@ -318,7 +327,8 @@ import {
   BarChart3,
   FileText,
   Settings,
-  Calculator
+  Calculator,
+  DollarSign
 } from 'lucide-vue-next'
 
 const route = useRoute()

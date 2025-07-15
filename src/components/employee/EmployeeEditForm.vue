@@ -216,32 +216,24 @@
             <label for="salary" class="block text-sm font-medium text-gray-700 mb-1">
               Salary <span class="text-red-500">*</span>
             </label>
-            <input
-              v-model="form.salary"
-              type="number"
-              id="salary"
-              required
-              min="0"
-              step="0.01"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              :class="{ 'border-red-300': errors.salary }"
-            />
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">{{ currentSymbol }}</span>
+              </div>
+              <input
+                v-model="form.salary"
+                type="number"
+                id="salary"
+                required
+                min="0"
+                step="0.01"
+                class="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                :class="{ 'border-red-300': errors.salary }"
+              />
+            </div>
             <p v-if="errors.salary" class="mt-1 text-sm text-red-600">{{ errors.salary[0] }}</p>
           </div>
 
-          <div>
-            <label for="currency_uuid" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-            <select
-              v-model="form.currency_uuid"
-              id="currency_uuid"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select Currency</option>
-              <option v-for="currency in currencies" :key="currency.uuid" :value="currency.uuid">
-                {{ currency.display_name }}
-              </option>
-            </select>
-          </div>
 
           <div>
             <label for="pay_frequency" class="block text-sm font-medium text-gray-700 mb-1">Pay Frequency</label>
@@ -287,7 +279,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useEmployeeStore } from '@/stores/employee'
 import { useNotificationStore } from '@/stores/notification'
-import { useCurrencyStore } from '@/stores/currency'
+import { useCurrency } from '@/composables/useCurrency'
 
 const props = defineProps({
   employee: {
@@ -300,13 +292,12 @@ const emit = defineEmits(['updated', 'cancelled'])
 
 const employeeStore = useEmployeeStore()
 const notificationStore = useNotificationStore()
-const currencyStore = useCurrencyStore()
+const { currentSymbol } = useCurrency()
 
 const submitting = ref(false)
 const errors = ref({})
 const departments = ref([])
 const positions = ref([])
-const currencies = computed(() => currencyStore.activeCurrencies)
 
 const form = reactive({
   first_name: props.employee.first_name || '',
@@ -323,7 +314,6 @@ const form = reactive({
   start_date: props.employee.start_date || '',
   hire_date: props.employee.hire_date || '',
   salary: props.employee.salary || '',
-  currency_uuid: props.employee.currency_uuid || '',
   pay_frequency: props.employee.pay_frequency || 'monthly'
 })
 

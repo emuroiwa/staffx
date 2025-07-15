@@ -78,7 +78,7 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Payroll</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatCurrency(statistics?.total_payroll || 0) }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(statistics?.total_payroll || 0) }}</p>
             </div>
           </div>
         </div>
@@ -309,6 +309,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { debounce } from 'lodash-es'
 import { useEmployeeStore } from '@/stores/employee'
 import { useNotificationStore } from '@/stores/notification'
+import { useCurrency } from '@/composables/useCurrency'
 import EmployeeCreateModal from '@/components/employee/EmployeeCreateModal.vue'
 import EmployeeDetailModal from '@/components/employee/EmployeeDetailModal.vue'
 import {
@@ -323,6 +324,7 @@ import {
 
 const employeeStore = useEmployeeStore()
 const notificationStore = useNotificationStore()
+const { formatCurrency } = useCurrency()
 
 // Component state
 const loading = ref(false)
@@ -498,9 +500,6 @@ const formatStatus = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US').format(amount)
-}
 
 // Lifecycle
 onMounted(() => {

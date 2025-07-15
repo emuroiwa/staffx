@@ -319,7 +319,7 @@
                 </label>
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">{{ selectedCurrencySymbol }}</span>
+                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">{{ currentSymbol }}</span>
                   </div>
                   <input
                     v-model="form.salary"
@@ -335,19 +335,6 @@
                 <p v-if="errors.salary" class="mt-1 text-sm text-red-600">{{ errors.salary[0] }}</p>
               </div>
 
-              <div>
-                <label for="currency_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
-                <select
-                  v-model="form.currency_uuid"
-                  id="currency_uuid"
-                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
-                >
-                  <option value="">Select Currency</option>
-                  <option v-for="currency in currencies" :key="currency.uuid" :value="currency.uuid">
-                    {{ currency.display_name }}
-                  </option>
-                </select>
-              </div>
 
               <div>
                 <label for="pay_frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pay Frequency</label>
@@ -572,7 +559,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useEmployeeStore } from '@/stores/employee'
 import { useNotificationStore } from '@/stores/notification'
-import { useCurrencyStore } from '@/stores/currency'
+import { useCurrency } from '@/composables/useCurrency'
 import { useTheme } from '@/composables/useTheme'
 import {
   XMarkIcon,
@@ -589,7 +576,7 @@ const emit = defineEmits(['close', 'created'])
 
 const employeeStore = useEmployeeStore()
 const notificationStore = useNotificationStore()
-const currencyStore = useCurrencyStore()
+const { currentSymbol } = useCurrency()
 const { isDark } = useTheme()
 
 // Component state
@@ -602,7 +589,6 @@ const errors = ref({})
 const departments = ref([])
 const positions = ref([])
 const potentialManagers = ref([])
-const currencies = computed(() => currencyStore.activeCurrencies)
 
 // Steps configuration
 const steps = [
@@ -632,7 +618,6 @@ const form = reactive({
   is_independent_contractor: false,
   is_uif_exempt: false,
   salary: '',
-  currency_uuid: '',
   pay_frequency: 'monthly',
   tax_number: '',
   national_id: '',
@@ -669,13 +654,6 @@ const canProceed = computed(() => {
   }
 })
 
-const selectedCurrencySymbol = computed(() => {
-  if (form.currency_uuid) {
-    const currency = currencyStore.getCurrencyByUuid(form.currency_uuid)
-    return currency?.symbol || '$'
-  }
-  return '$'
-})
 
 // Methods
 const getStepClass = (stepNumber) => {
@@ -782,24 +760,8 @@ const setDefaultDates = () => {
 onMounted(() => {
   fetchDepartments()
   fetchPositions()
-  fetchCurrencies()
   setDefaultDates()
-  setDefaultCurrency()
 })
 
-const fetchCurrencies = async () => {
-  try {
-    await currencyStore.fetchCurrencies()
-  } catch (error) {
-    console.error('Failed to fetch currencies:', error)
-  }
-}
 
-const setDefaultCurrency = () => {
-  // Set USD as default if available
-  const usdCurrency = currencyStore.getCurrencyByCode('USD')
-  if (usdCurrency) {
-    form.currency_uuid = usdCurrency.uuid
-  }
-}
 </script>

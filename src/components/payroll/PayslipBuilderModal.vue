@@ -107,7 +107,7 @@
                     <div class="mt-1 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                       <span>{{ item?.code || 'N/A' }}</span>
                       <span>{{ getCalculationMethodLabel(item?.calculation_method) }}</span>
-                      <span class="font-medium">{{ formatAmount(item?.calculated_amount || getItemAmount(item)) }}</span>
+                      <span class="font-medium">{{ formatCurrency(item?.calculated_amount || getItemAmount(item)) }}</span>
                     </div>
                     <div v-if="item?.effective_from || item?.effective_to" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       <span v-if="item?.effective_from">From: {{ formatDate(item.effective_from) }}</span>
@@ -306,6 +306,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotifications } from '@/composables/useNotifications'
+import { useCurrency } from '@/composables/useCurrency'
 import {
   XMarkIcon,
   PlusIcon,
@@ -334,6 +335,7 @@ const emit = defineEmits(['close', 'saved'])
 
 const { get, post, delete: del } = useApi()
 const { showNotification } = useNotifications()
+const { formatCurrency } = useCurrency()
 
 // State
 const loading = ref(false)
@@ -418,6 +420,7 @@ const canGeneratePayslip = computed(() => {
   return props.employee && (allowances.value.length > 0 || deductions.value.length > 0)
 })
 
+
 // Methods
 const loadPayrollItems = async () => {
   if (!props.employee?.uuid) return
@@ -494,19 +497,6 @@ const getCalculationMethodLabel = (method) => {
   return labels[method] || method
 }
 
-const formatAmount = (amount) => {
-  return new Intl.NumberFormat('en-ZA', {
-    style: 'currency',
-    currency: 'ZAR'
-  }).format(amount || 0)
-}
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-ZA', {
-    style: 'currency',
-    currency: 'ZAR'
-  }).format(amount || 0)
-}
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-ZA')

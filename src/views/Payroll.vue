@@ -109,16 +109,16 @@
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-600 dark:text-gray-400">Gross Payroll</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$324,560</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(324560) }}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-600 dark:text-gray-400">Total Deductions</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$89,560</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(89560) }}</span>
           </div>
           <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div class="flex justify-between items-center">
               <span class="text-sm font-medium text-gray-900 dark:text-white">Net Payroll</span>
-              <span class="text-lg font-semibold text-green-600 dark:text-green-400">$235,000</span>
+              <span class="text-lg font-semibold text-green-600 dark:text-green-400">{{ formatCurrency(235000) }}</span>
             </div>
           </div>
         </div>
@@ -306,19 +306,19 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">Federal Tax Withheld</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$45,230</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(45230) }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">State Tax Withheld</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$12,560</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(12560) }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">Social Security</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$18,920</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(18920) }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600 dark:text-gray-400">Medicare</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">$4,430</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(4430) }}</span>
           </div>
 
           <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -326,7 +326,7 @@
               <span class="text-sm font-medium text-gray-900 dark:text-white"
                 >Total Tax Liability</span
               >
-              <span class="text-lg font-semibold text-red-600 dark:text-red-400">$81,140</span>
+              <span class="text-lg font-semibold text-red-600 dark:text-red-400">{{ formatCurrency(81140) }}</span>
             </div>
           </div>
 
@@ -343,6 +343,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useCurrency } from '@/composables/useCurrency'
 import {
   Play,
   BarChart3,
@@ -355,11 +356,13 @@ import {
   Edit
 } from 'lucide-vue-next'
 
+const { formatCurrency } = useCurrency()
+
 // Payroll metrics
 const payrollMetrics = ref([
   {
     title: 'Total Payroll',
-    value: '$235,000',
+    value: formatCurrency(235000),
     change: '+12%',
     changeText: 'vs last month',
     changeColor: 'text-green-600 dark:text-green-400',
@@ -379,7 +382,7 @@ const payrollMetrics = ref([
   },
   {
     title: 'Avg Salary',
-    value: '$4,608',
+    value: formatCurrency(4608),
     change: '+3.2%',
     changeText: 'increase',
     changeColor: 'text-green-600 dark:text-green-400',
@@ -482,12 +485,6 @@ function editPayroll(run) {
   // Implement edit payroll functionality
 }
 
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('en-US', {
