@@ -268,12 +268,32 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="pagination.total > pagination.per_page" class="bg-white dark:bg-gray-800 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-              Showing {{ (pagination.current_page - 1) * pagination.per_page + 1 }} to {{ Math.min(pagination.current_page * pagination.per_page, pagination.total) }} of {{ pagination.total }} results
+        <div v-if="pagination.total > 0" class="bg-white dark:bg-gray-800 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="text-sm text-gray-700 dark:text-gray-300">
+                Showing {{ pagination.from || ((pagination.current_page - 1) * pagination.per_page + 1) }} to {{ pagination.to || Math.min(pagination.current_page * pagination.per_page, pagination.total) }} of {{ pagination.total }} results
+              </div>
+              <div class="flex items-center space-x-2">
+                <label for="per-page-templates" class="text-sm text-gray-700 dark:text-gray-300">
+                  Show:
+                </label>
+                <select
+                  id="per-page-templates"
+                  v-model="currentPerPage"
+                  @change="changePerPage"
+                  class="block px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                <span class="text-sm text-gray-700 dark:text-gray-300">per page</span>
+              </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div v-if="pagination.last_page > 1" class="flex items-center space-x-2">
               <button
                 @click="handlePageChange(pagination.current_page - 1)"
                 :disabled="pagination.current_page <= 1"
@@ -353,6 +373,7 @@ const filters = reactive({
 })
 
 const searchQuery = ref('')
+const currentPerPage = ref(15)
 
 // Methods
 const fetchTemplates = async (page = 1) => {
@@ -370,18 +391,16 @@ const fetchTemplates = async (page = 1) => {
 
     const response = await get('/payroll-templates', { params })
     
-    // Ensure we have the expected response structure
-    if (response.data && response.data.data && response.data.data.data) {
-      templates.value = response.data.data.data || []
-      pagination.value = {
-        current_page: response.data.data.current_page || 1,
-        last_page: response.data.data.last_page || 1,
-        total: response.data.data.total || 0,
-        per_page: response.data.data.per_page || 15
-      }
-    } else {
-      templates.value = []
-      console.warn('Unexpected API response structure:', response.data)
+    // Laravel ResourceCollection returns data in 'data' and pagination in 'meta'
+    templates.value = response.data.data || []
+    const meta = response.data.meta || {}
+    pagination.value = {
+      current_page: meta.current_page || 1,
+      last_page: meta.last_page || 1,
+      total: meta.total || 0,
+      per_page: meta.per_page || 15,
+      from: meta.from || 0,
+      to: meta.to || 0
     }
   } catch (error) {
     templates.value = [] // Ensure templates is always an array
@@ -408,6 +427,12 @@ const activeDropdown = ref(null)
 
 const handlePageChange = (page) => {
   fetchTemplates(page)
+}
+
+const changePerPage = () => {
+  pagination.value.per_page = parseInt(currentPerPage.value)
+  pagination.value.current_page = 1  // Reset to first page when changing per-page
+  fetchTemplates(1)
 }
 
 const toggleDropdown = (templateId) => {

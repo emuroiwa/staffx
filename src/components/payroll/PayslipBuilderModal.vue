@@ -433,8 +433,8 @@ const loadPayrollItems = async () => {
       }
     })
     
-    // Extract the actual items array from the paginated response
-    payrollItems.value = response.data.data.data || []
+    // Laravel ResourceCollection returns data in 'data' field
+    payrollItems.value = response.data.data || []
   } catch (error) {
     console.error('Failed to load payroll items:', error)
     showNotification('Failed to load payroll items', 'error')
@@ -453,7 +453,7 @@ const loadStatutoryDeductions = async () => {
       employee_uuid: props.employee.uuid,
       gross_salary: parseFloat(grossSalary.value) || 0
     })
-    statutoryDeductions.value = response.data.deductions?.deductions || []
+    statutoryDeductions.value = response.data.data.deductions?.deductions || []
   } catch (error) {
     console.error('Failed to load statutory deductions:', error)
     statutoryDeductions.value = []

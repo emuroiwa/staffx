@@ -262,8 +262,29 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="pagination.total > pagination.per_page" class="mt-8">
+    <div v-if="pagination.total > 0" class="mt-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div class="flex items-center space-x-2">
+          <label for="per-page-component-items" class="text-sm text-gray-700 dark:text-gray-300">
+            Show:
+          </label>
+          <select
+            id="per-page-component-items"
+            v-model="currentPerPage"
+            @change="changePerPage"
+            class="block px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span class="text-sm text-gray-700 dark:text-gray-300">per page</span>
+        </div>
+      </div>
       <Pagination
+        v-if="pagination.last_page > 1"
         :current-page="pagination.current_page"
         :total-pages="pagination.last_page"
         :total-items="pagination.total"
@@ -359,6 +380,7 @@ export default {
     })
 
     const searchQuery = ref('')
+    const currentPerPage = ref(15)
 
     // Methods
     const fetchItems = async (page = 1) => {
@@ -375,12 +397,17 @@ export default {
         }
 
         const response = await get('/employee-payroll-items', { params })
-        items.value = response.data.data
+        
+        // Laravel ResourceCollection returns data in 'data' and pagination in 'meta'
+        items.value = response.data.data || []
+        const meta = response.data.meta || {}
         pagination.value = {
-          current_page: response.data.current_page,
-          last_page: response.data.last_page,
-          total: response.data.total,
-          per_page: response.data.per_page
+          current_page: meta.current_page || 1,
+          last_page: meta.last_page || 1,
+          total: meta.total || 0,
+          per_page: meta.per_page || 15,
+          from: meta.from || 0,
+          to: meta.to || 0
         }
       } catch (error) {
         showNotification('Error fetching payroll items', 'error')
@@ -420,6 +447,12 @@ export default {
 
     const handlePageChange = (page) => {
       fetchItems(page)
+    }
+
+    const changePerPage = () => {
+      pagination.value.per_page = parseInt(currentPerPage.value)
+      pagination.value.current_page = 1  // Reset to first page when changing per-page
+      fetchItems(1)
     }
 
     const toggleDropdown = (itemId) => {
@@ -551,6 +584,7 @@ export default {
       pagination,
       filters,
       searchQuery,
+      currentPerPage,
       debouncedSearch,
       showCreateModal,
       showEditModal,
@@ -564,6 +598,7 @@ export default {
       activeDropdown,
       fetchItems,
       handlePageChange,
+      changePerPage,
       toggleDropdown,
       editItem,
       calculatePreview,

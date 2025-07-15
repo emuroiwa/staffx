@@ -153,12 +153,37 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination.total > pagination.per_page" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700 dark:text-gray-300">
-            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} employees
+      <div v-if="pagination.total > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-700 dark:text-gray-300">
+              <span v-if="!filters.hasPayrollItems">
+                Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} employees
+              </span>
+              <span v-else>
+                Showing {{ filteredEmployees.length }} employees (filtered)
+              </span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <label for="per-page-payroll" class="text-sm text-gray-700 dark:text-gray-300">
+                Show:
+              </label>
+              <select
+                id="per-page-payroll"
+                v-model="pagination.per_page"
+                @change="changePerPage"
+                class="block px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <span class="text-sm text-gray-700 dark:text-gray-300">per page</span>
+            </div>
           </div>
-          <div class="flex space-x-2">
+          <div v-if="!filters.hasPayrollItems && pagination.total > pagination.per_page" class="flex space-x-2">
             <button
               @click="previousPage"
               :disabled="!pagination.prev_page_url"
@@ -166,6 +191,9 @@
             >
               Previous
             </button>
+            <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center px-2">
+              Page {{ pagination.current_page }} of {{ Math.ceil(pagination.total / pagination.per_page) }}
+            </span>
             <button
               @click="nextPage"
               :disabled="!pagination.next_page_url"
@@ -228,27 +256,11 @@ const pagination = reactive({
   next_page_url: null
 })
 
-// Computed
+// Computed - only handles client-side filters that can't be done server-side
 const filteredEmployees = computed(() => {
   let filtered = employees.value
 
-  if (filters.search) {
-    const search = filters.search.toLowerCase()
-    filtered = filtered.filter(emp => 
-      emp.display_name.toLowerCase().includes(search) ||
-      emp.employee_id.toLowerCase().includes(search) ||
-      emp.email.toLowerCase().includes(search)
-    )
-  }
-
-  if (filters.department) {
-    filtered = filtered.filter(emp => emp.department?.uuid === filters.department)
-  }
-
-  if (filters.status) {
-    filtered = filtered.filter(emp => emp.status === filters.status)
-  }
-
+  // Only apply payroll items filter client-side since it requires counting related data
   if (filters.hasPayrollItems) {
     const hasItems = filters.hasPayrollItems === 'true'
     filtered = filtered.filter(emp => {
@@ -264,13 +276,44 @@ const filteredEmployees = computed(() => {
 const loadEmployees = async () => {
   try {
     loading.value = true
-    const response = await get('/employees', {
+    
+    // Build API parameters including filters
+    const params = {
       per_page: pagination.per_page,
       page: pagination.current_page
-    })
+    }
     
-    employees.value = response.data.data
-    Object.assign(pagination, response.data)
+    // Add search filter
+    if (filters.search) {
+      params.search = filters.search
+    }
+    
+    // Add department filter  
+    if (filters.department) {
+      params.department_uuid = filters.department
+    }
+    
+    // Add status filter
+    if (filters.status) {
+      params.status = filters.status
+    }
+    
+    const response = await get('/employees', params)
+    
+    employees.value = response.data.data || []
+    
+    // Laravel ResourceCollection returns pagination data in 'meta' object
+    const meta = response.data.meta || {}
+    const links = response.data.links || {}
+    Object.assign(pagination, {
+      current_page: meta.current_page || 1,
+      per_page: meta.per_page || 15,
+      total: meta.total || 0,
+      from: meta.from || 0,
+      to: meta.to || 0,
+      prev_page_url: links.prev || null,
+      next_page_url: links.next || null
+    })
   } catch (error) {
     showNotification('Failed to load employees', 'error')
   } finally {
@@ -354,10 +397,16 @@ const nextPage = () => {
   }
 }
 
+const changePerPage = () => {
+  pagination.current_page = 1  // Reset to first page when changing per-page
+  loadEmployees()
+}
+
 // Watchers
 watch([filters], () => {
-  // Reset pagination when filters change
+  // Reset pagination when filters change and reload data
   pagination.current_page = 1
+  loadEmployees()
 }, { deep: true })
 
 // Lifecycle

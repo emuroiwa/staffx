@@ -258,12 +258,32 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="pagination.total > pagination.per_page" class="bg-white dark:bg-gray-800 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-              Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} results
+        <div v-if="pagination.total > 0" class="bg-white dark:bg-gray-800 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="text-sm text-gray-700 dark:text-gray-300">
+                Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} results
+              </div>
+              <div class="flex items-center space-x-2">
+                <label for="per-page" class="text-sm text-gray-700 dark:text-gray-300">
+                  Show:
+                </label>
+                <select
+                  id="per-page"
+                  v-model="filters.per_page"
+                  @change="changePerPage"
+                  class="block px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                <span class="text-sm text-gray-700 dark:text-gray-300">per page</span>
+              </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div v-if="pagination.last_page > 1" class="flex items-center space-x-2">
               <button
                 @click="goToPage(pagination.current_page - 1)"
                 :disabled="pagination.current_page <= 1"
@@ -360,13 +380,16 @@ const fetchEmployees = async () => {
   try {
     const response = await employeeStore.fetchEmployees(filters)
     employees.value = response.data
+    
+    // Laravel ResourceCollection returns pagination data in 'meta' object
+    const meta = response.meta || {}
     pagination.value = {
-      current_page: response.current_page,
-      last_page: response.last_page,
-      per_page: response.per_page,
-      total: response.total,
-      from: response.from,
-      to: response.to
+      current_page: meta.current_page || 1,
+      last_page: meta.last_page || 1,
+      per_page: meta.per_page || 15,
+      total: meta.total || 0,
+      from: meta.from || 0,
+      to: meta.to || 0
     }
   } catch (error) {
     notificationStore.addNotification({
@@ -406,6 +429,11 @@ const goToPage = (page) => {
     filters.page = page
     fetchEmployees()
   }
+}
+
+const changePerPage = () => {
+  filters.page = 1  // Reset to first page when changing per-page
+  fetchEmployees()
 }
 
 const viewEmployee = (employee) => {
