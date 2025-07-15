@@ -93,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
     lastName: string
     email: string
     company: string
+    countryUuid: string
     password: string
   }) {
     loading.value = true
@@ -102,6 +103,7 @@ export const useAuthStore = defineStore('auth', () => {
         last_name: userData.lastName,
         email: userData.email,
         company: userData.company,
+        country_uuid: userData.countryUuid,
         password: userData.password,
         password_confirmation: userData.password,
       })

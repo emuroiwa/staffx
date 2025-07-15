@@ -10,6 +10,7 @@ export interface RegisterData {
   last_name: string
   email: string
   company: string
+  country_uuid: string
   password: string
   password_confirmation: string
 }

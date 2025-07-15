@@ -116,6 +116,16 @@ const routes = [
           icon: 'users',
           requiresAuth: true
         }
+      },
+      {
+        path: 'payroll',
+        name: 'EmployeePayroll',
+        component: () => import('@/pages/employees/EmployeePayrollManagement.vue'),
+        meta: {
+          title: 'Employee Payroll Management',
+          icon: 'currency-dollar',
+          requiresAuth: true
+        }
       }
     ]
   },

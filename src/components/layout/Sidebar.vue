@@ -67,6 +67,16 @@
                 </li>
                 <li>
                   <router-link
+                    to="/employees/payroll"
+                    class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                    :class="{ 'bg-blue-50 text-blue-700 font-medium': $route.path === '/employees/payroll' }"
+                  >
+                    <CurrencyDollarIcon class="w-4 h-4 mr-3" />
+                    Payroll Management
+                  </router-link>
+                </li>
+                <li>
+                  <router-link
                     to="/positions"
                     class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                     :class="{ 'bg-blue-50 text-blue-700 font-medium': $route.path === '/positions' }"

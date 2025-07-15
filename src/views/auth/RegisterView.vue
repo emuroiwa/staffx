@@ -110,6 +110,41 @@
         </p>
       </div>
 
+      <!-- Country Field -->
+      <div>
+        <label
+          for="country"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
+          Country
+        </label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Globe class="h-5 w-5 text-gray-400" />
+          </div>
+          <select
+            id="country"
+            v-model="form.countryUuid"
+            required
+            class="form-input pl-10"
+            :class="{ 'border-red-500 dark:border-red-500': errors.countryUuid }"
+          >
+            <option value="">Select your country</option>
+            <option
+              v-for="country in countries"
+              :key="country.uuid"
+              :value="country.uuid"
+            >
+              {{ country.name }}
+              <span v-if="!country.is_supported_for_payroll" class="text-gray-500">(Limited payroll support)</span>
+            </option>
+          </select>
+        </div>
+        <p v-if="errors.countryUuid" class="mt-1 text-sm text-red-600 dark:text-red-400">
+          {{ errors.countryUuid }}
+        </p>
+      </div>
+
       <!-- Password Field -->
       <div>
         <label
@@ -265,13 +300,15 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Mail, Lock, Building2, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-vue-next'
+import { useApi } from '@/composables/useApi'
+import { Mail, Lock, Building2, Globe, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { get } = useApi()
 
 // Form state
 const form = reactive({
@@ -279,10 +316,14 @@ const form = reactive({
   lastName: '',
   email: '',
   company: '',
+  countryUuid: '',
   password: '',
   confirmPassword: '',
   acceptTerms: false
 })
+
+// Countries data
+const countries = ref([])
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -293,6 +334,7 @@ const errors = reactive({
   lastName: '',
   email: '',
   company: '',
+  countryUuid: '',
   password: '',
   confirmPassword: '',
   acceptTerms: ''
@@ -328,6 +370,11 @@ function validateForm() {
     isValid = false
   }
 
+  if (!form.countryUuid) {
+    errors.countryUuid = 'Country is required'
+    isValid = false
+  }
+
   if (!form.password) {
     errors.password = 'Password is required'
     isValid = false
@@ -352,6 +399,17 @@ function validateForm() {
   return isValid
 }
 
+// Load countries
+async function loadCountries() {
+  try {
+    const response = await get('/countries')
+    countries.value = response.data
+    console.log(response.data);
+  } catch (error) {
+    console.error('Failed to load countries:', error)
+  }
+}
+
 // Handle registration
 async function handleRegister() {
   if (!validateForm()) return
@@ -368,6 +426,7 @@ async function handleRegister() {
       lastName: form.lastName,
       email: form.email,
       company: form.company,
+      countryUuid: form.countryUuid,
       password: form.password
     })
 
@@ -390,6 +449,7 @@ async function handleRegister() {
           'last_name': 'lastName',
           'email': 'email',
           'company': 'company',
+          'country_uuid': 'countryUuid',
           'password': 'password'
         }
         
@@ -409,4 +469,9 @@ async function handleRegister() {
     loading.value = false
   }
 }
+
+// Load countries on mount
+onMounted(() => {
+  loadCountries()
+})
 </script>

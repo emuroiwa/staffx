@@ -33,7 +33,7 @@
             :disabled="isEdit"
             type="text"
             required
-            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
             placeholder="e.g., TRANSPORT"
           >
           <p v-if="errors.code" class="mt-1 text-sm text-red-600">{{ errors.code[0] }}</p>
@@ -46,7 +46,7 @@
           <select
             v-model="form.type"
             required
-            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
           >
             <option value="">Select Type</option>
             <option value="allowance">Allowance</option>
@@ -64,7 +64,7 @@
           v-model="form.name"
           type="text"
           required
-          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
           placeholder="e.g., Transport Allowance"
         >
         <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name[0] }}</p>
@@ -77,7 +77,7 @@
         <textarea
           v-model="form.description"
           rows="3"
-          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
           placeholder="Brief description of this template"
         ></textarea>
         <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description[0] }}</p>
@@ -92,7 +92,7 @@
           v-model="form.calculation_method"
           @change="resetCalculationFields"
           required
-          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
         >
           <option value="">Select Method</option>
           <option value="fixed_amount">Fixed Amount</option>
@@ -116,7 +116,7 @@
               step="0.01"
               min="0"
               required
-              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
               placeholder="0.00"
             >
             <p v-if="errors.amount" class="mt-1 text-sm text-red-600">{{ errors.amount[0] }}</p>
@@ -136,7 +136,7 @@
                 min="0"
                 max="100"
                 required
-                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 pr-8"
+                class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200 pr-8"
                 placeholder="0.00"
               >
               <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">%</span>
@@ -153,7 +153,7 @@
             v-model="form.formula_expression"
             rows="3"
             required
-            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 font-mono text-sm"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200 font-mono text-sm"
             placeholder="e.g., {basic_salary} * 0.1 + {years_of_service} * 100"
           ></textarea>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -174,7 +174,7 @@
             type="number"
             step="0.01"
             min="0"
-            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
             placeholder="0.00"
           >
           <p v-if="errors.minimum_amount" class="mt-1 text-sm text-red-600">{{ errors.minimum_amount[0] }}</p>
@@ -189,7 +189,7 @@
             type="number"
             step="0.01"
             min="0"
-            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
             placeholder="0.00"
           >
           <p v-if="errors.maximum_amount" class="mt-1 text-sm text-red-600">{{ errors.maximum_amount[0] }}</p>
@@ -198,7 +198,8 @@
 
       <!-- Settings -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="flex items-center">
+        <!-- Only show taxable and pensionable for allowances -->
+        <div v-if="form.type === 'allowance'" class="flex items-center">
           <input
             v-model="form.is_taxable"
             type="checkbox"
@@ -209,7 +210,7 @@
           </label>
         </div>
 
-        <div class="flex items-center">
+        <div v-if="form.type === 'allowance'" class="flex items-center">
           <input
             v-model="form.is_pensionable"
             type="checkbox"
@@ -218,6 +219,27 @@
           <label class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Pensionable
           </label>
+        </div>
+
+        <!-- Show explanation for deductions -->
+        <div v-if="form.type === 'deduction'" class="col-span-2">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3 flex-1">
+                <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Deduction Settings
+                </h3>
+                <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                  <p>Deductions are automatically set as non-taxable and non-pensionable as they reduce taxable income.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="flex items-center">
@@ -307,7 +329,11 @@ export default {
     const resetForm = () => {
       Object.keys(form).forEach(key => {
         if (typeof form[key] === 'boolean') {
-          form[key] = key === 'is_taxable' || key === 'is_pensionable'
+          if (key === 'is_taxable' || key === 'is_pensionable') {
+            form[key] = true // Default for allowances
+          } else {
+            form[key] = false
+          }
         } else {
           form[key] = ''
         }
@@ -317,6 +343,17 @@ export default {
       form.minimum_amount = null
       form.maximum_amount = null
       errors.value = {}
+    }
+
+    // Watch for type changes to set appropriate defaults
+    const updateTypeDefaults = () => {
+      if (form.type === 'deduction') {
+        form.is_taxable = false
+        form.is_pensionable = false
+      } else if (form.type === 'allowance') {
+        form.is_taxable = true
+        form.is_pensionable = true
+      }
     }
 
     const populateForm = (template) => {
@@ -346,7 +383,7 @@ export default {
 
         const method = isEdit.value ? put : post
 
-        // Clean up form data based on calculation method
+        // Clean up form data based on calculation method and type
         const formData = { ...form }
         
         if (formData.calculation_method !== 'fixed_amount') {
@@ -357,6 +394,12 @@ export default {
         }
         if (formData.calculation_method !== 'formula') {
           formData.formula_expression = ''
+        }
+
+        // Ensure deductions are never taxable or pensionable
+        if (formData.type === 'deduction') {
+          formData.is_taxable = false
+          formData.is_pensionable = false
         }
 
         await method(endpoint, formData)
@@ -391,13 +434,19 @@ export default {
       }
     })
 
+    // Watch for type changes to update defaults
+    watch(() => form.type, () => {
+      updateTypeDefaults()
+    })
+
     return {
       loading,
       errors,
       form,
       isEdit,
       resetCalculationFields,
-      submitForm
+      submitForm,
+      updateTypeDefaults
     }
   }
 }
