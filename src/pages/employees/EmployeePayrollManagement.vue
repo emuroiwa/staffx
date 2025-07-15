@@ -290,7 +290,8 @@ const loadDepartments = async () => {
 const loadPayrollItems = async () => {
   try {
     const response = await get('/employee-payroll-items')
-    payrollItems.value = response.data.data || response.data || []
+    // Extract the actual items array from the paginated response
+    payrollItems.value = response.data.data.data || []
   } catch (error) {
     console.error('Failed to load payroll items:', error)
     payrollItems.value = []

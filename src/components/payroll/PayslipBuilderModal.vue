@@ -46,7 +46,7 @@
             <div class="mt-4 flex space-x-4">
               <select
                 v-model="itemFilters.type"
-                class="block w-32 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                class="block w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200 text-sm"
               >
                 <option value="">All Types</option>
                 <option value="allowance">Allowances</option>
@@ -54,7 +54,7 @@
               </select>
               <select
                 v-model="itemFilters.status"
-                class="block w-32 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                class="block w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200 text-sm"
               >
                 <option value="">All Status</option>
                 <option value="active">Active</option>
@@ -107,7 +107,7 @@
                     <div class="mt-1 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                       <span>{{ item?.code || 'N/A' }}</span>
                       <span>{{ getCalculationMethodLabel(item?.calculation_method) }}</span>
-                      <span class="font-medium">{{ formatAmount(item?.calculated_amount) }}</span>
+                      <span class="font-medium">{{ formatAmount(item?.calculated_amount || getItemAmount(item)) }}</span>
                     </div>
                     <div v-if="item?.effective_from || item?.effective_to" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       <span v-if="item?.effective_from">From: {{ formatDate(item.effective_from) }}</span>
@@ -207,7 +207,7 @@
                   >
                     <span class="text-sm text-green-800 dark:text-green-200">{{ allowance.name }}</span>
                     <span class="text-sm font-medium text-green-600 dark:text-green-400">
-                      +{{ formatCurrency(allowance.calculated_amount || 0) }}
+                      +{{ formatCurrency(allowance.calculated_amount || getItemAmount(allowance)) }}
                     </span>
                   </div>
                 </div>
@@ -232,9 +232,9 @@
               </div>
 
               <!-- Statutory Deductions -->
-              <div v-if="statutoryDeductions.length > 0">
+              <div>
                 <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Statutory Deductions</h5>
-                <div class="space-y-2">
+                <div v-if="statutoryDeductions.length > 0" class="space-y-2">
                   <div
                     v-for="deduction in statutoryDeductions"
                     :key="deduction.code"
@@ -242,9 +242,12 @@
                   >
                     <span class="text-sm text-red-800 dark:text-red-200">{{ deduction.name }}</span>
                     <span class="text-sm font-medium text-red-600 dark:text-red-400">
-                      -{{ formatCurrency(deduction.amount || 0) }}
+                      -{{ formatCurrency(deduction.employee_amount || 0) }}
                     </span>
                   </div>
+                </div>
+                <div v-else class="py-2 px-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">No statutory deductions configured</span>
                 </div>
               </div>
 
@@ -259,7 +262,7 @@
                   >
                     <span class="text-sm text-red-800 dark:text-red-200">{{ deduction.name }}</span>
                     <span class="text-sm font-medium text-red-600 dark:text-red-400">
-                      -{{ formatCurrency(deduction.calculated_amount || 0) }}
+                      -{{ formatCurrency(deduction.calculated_amount || getItemAmount(deduction)) }}
                     </span>
                   </div>
                 </div>
@@ -300,7 +303,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotifications } from '@/composables/useNotifications'
 import {
@@ -329,7 +332,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'saved'])
 
-const { get, post, put, del } = useApi()
+const { get, post, delete: del } = useApi()
 const { showNotification } = useNotifications()
 
 // State
@@ -351,7 +354,7 @@ const filteredPayrollItems = computed(() => {
     return []
   }
   
-  let filtered = payrollItems.value.filter(item => item && item.uuid)
+  let filtered = payrollItems.value.filter(item => item && (item.uuid || item.id))
 
   if (itemFilters.type) {
     filtered = filtered.filter(item => item?.type === itemFilters.type)
@@ -383,16 +386,28 @@ const deductions = computed(() => {
 })
 
 const totalAllowances = computed(() => {
-  return allowances.value.reduce((sum, item) => sum + (item.calculated_amount || 0), 0)
+  return allowances.value.reduce((sum, item) => {
+    const amount = item.calculated_amount || getItemAmount(item)
+    return sum + (parseFloat(amount) || 0)
+  }, 0)
 })
 
 const totalDeductions = computed(() => {
-  return deductions.value.reduce((sum, item) => sum + (item.calculated_amount || 0), 0) +
-    statutoryDeductions.value.reduce((sum, item) => sum + (item.amount || 0), 0)
+  const payrollDeductions = deductions.value.reduce((sum, item) => {
+    const amount = item.calculated_amount || getItemAmount(item)
+    return sum + (parseFloat(amount) || 0)
+  }, 0)
+  
+  const statutoryDeductionsTotal = statutoryDeductions.value.reduce((sum, item) => {
+    return sum + (parseFloat(item.employee_amount) || 0)
+  }, 0)
+  
+  return payrollDeductions + statutoryDeductionsTotal
 })
 
 const grossSalary = computed(() => {
-  return (props.employee?.salary || 0) + totalAllowances.value
+  const basicSalary = parseFloat(props.employee?.salary) || 0
+  return basicSalary + totalAllowances.value
 })
 
 const netSalary = computed(() => {
@@ -414,7 +429,9 @@ const loadPayrollItems = async () => {
         employee_uuid: props.employee.uuid
       }
     })
-    payrollItems.value = response.data.data || response.data || []
+    
+    // Extract the actual items array from the paginated response
+    payrollItems.value = response.data.data.data || []
   } catch (error) {
     console.error('Failed to load payroll items:', error)
     showNotification('Failed to load payroll items', 'error')
@@ -431,9 +448,9 @@ const loadStatutoryDeductions = async () => {
     loadingPreview.value = true
     const response = await post('/payroll/calculate-statutory-deductions', {
       employee_uuid: props.employee.uuid,
-      gross_salary: grossSalary.value
+      gross_salary: parseFloat(grossSalary.value) || 0
     })
-    statutoryDeductions.value = response.data.deductions || []
+    statutoryDeductions.value = response.data.deductions?.deductions || []
   } catch (error) {
     console.error('Failed to load statutory deductions:', error)
     statutoryDeductions.value = []
@@ -493,6 +510,38 @@ const formatCurrency = (amount) => {
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-ZA')
+}
+
+const getItemAmount = (item) => {
+  if (!item) return 0
+  
+  // If already calculated and not zero, return that value
+  if (item.calculated_amount !== undefined && item.calculated_amount !== null && parseFloat(item.calculated_amount) !== 0) {
+    return parseFloat(item.calculated_amount) || 0
+  }
+  
+  // Calculate based on method
+  const basicSalary = parseFloat(props.employee?.salary) || 0
+  // For percentage_of_salary, we need gross salary but avoid circular reference
+  // Use basic salary for now since we're in the middle of calculating allowances
+  const grossSalaryForCalculation = basicSalary
+  
+  // If item is not active, return 0 (matches backend behavior)
+  if (item.status !== 'active') {
+    return 0
+  }
+  
+  switch (item.calculation_method) {
+    case 'fixed_amount':
+    case 'manual':
+      return parseFloat(item.amount) || 0
+    case 'percentage_of_salary':
+      return (grossSalaryForCalculation * (parseFloat(item.percentage) || 0)) / 100
+    case 'percentage_of_basic':
+      return (basicSalary * (parseFloat(item.percentage) || 0)) / 100
+    default:
+      return parseFloat(item.amount) || 0
+  }
 }
 
 const openAddItemModal = () => {
@@ -555,7 +604,7 @@ const deletePayrollItem = async (item) => {
 
 const generatePayslip = async () => {
   try {
-    const response = await post('/payroll/generate-payslip', {
+    await post('/payroll/generate-payslip', {
       employee_uuid: props.employee.uuid,
       payroll_items: payrollItems.value.filter(item => item.status === 'active'),
       statutory_deductions: statutoryDeductions.value
@@ -588,17 +637,18 @@ watch(payrollItems, async () => {
     return
   }
   
-  // Recalculate amounts for each item
+  // Optionally fetch precise calculations from backend for active items
   for (const item of payrollItems.value) {
-    if (item.status === 'active') {
+    if (item.status === 'active' && item.uuid) {
       try {
         const response = await post(`/employee-payroll-items/${item.uuid}/calculate-preview`, {
-          employee_basic_salary: props.employee?.salary || 0,
-          gross_salary: grossSalary.value
+          employee_basic_salary: parseFloat(props.employee?.salary) || 0,
+          gross_salary: parseFloat(grossSalary.value) || 0
         })
-        item.calculated_amount = response.data.calculated_amount
+        item.calculated_amount = parseFloat(response.data.calculated_amount) || 0
       } catch (error) {
         console.error('Failed to calculate amount for item:', item.code)
+        // Fallback to client-side calculation (getItemAmount handles this)
       }
     }
   }
