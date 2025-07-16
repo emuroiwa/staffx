@@ -399,6 +399,7 @@ export default {
         const response = await get('/employee-payroll-items', { params })
         
         // Laravel ResourceCollection returns data in 'data' and pagination in 'meta'
+        console.log(object.keys(response.data.data));
         items.value = response.data.data || []
         const meta = response.data.meta || {}
         pagination.value = {

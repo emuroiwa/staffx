@@ -465,6 +465,7 @@ const fetchItems = async (page = 1) => {
     const response = await get('/employee-payroll-items', { params })
     
     // Laravel ResourceCollection returns data in 'data' and pagination in 'meta'
+    console.log(response );
     items.value = response.data.data || []
     const meta = response.data.meta || {}
     pagination.value = {

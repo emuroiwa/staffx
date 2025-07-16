@@ -219,6 +219,15 @@
                 <span class="text-sm">Employee Items</span>
               </div>
             </router-link>
+            <router-link to="/payroll/garnishments" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <Scale class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Garnishments</span>
+              </div>
+            </router-link>
             <router-link to="/payroll/reports" v-slot="{ isActive }" class="block">
               <div
                 @click="themeStore.hideMobileSidebar"
@@ -328,7 +337,8 @@ import {
   FileText,
   Settings,
   Calculator,
-  DollarSign
+  DollarSign,
+  Scale
 } from 'lucide-vue-next'
 
 const route = useRoute()

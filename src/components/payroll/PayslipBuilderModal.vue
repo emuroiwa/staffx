@@ -77,7 +77,7 @@
               <CurrencyDollarIcon class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No payroll items</h3>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Add allowances or deductions to build this employee's payslip.
+                Add allowances or deductions to build this employee's payslip.{{ filteredPayrollItems }}
               </p>
             </div>
 
@@ -645,7 +645,7 @@ const loadPayrollItems = async () => {
     })
     
     // Laravel ResourceCollection returns data in 'data' field
-    payrollItems.value = response.data.data || []
+    payrollItems.value = response.data.data.data || []
   } catch (error) {
     console.error('Failed to load payroll items:', error)
     showNotification('Failed to load payroll items', 'error')

@@ -232,6 +232,16 @@ const routes = [
         }
       },
       {
+        path: 'garnishments',
+        name: 'PayrollGarnishments',
+        component: () => import('@/pages/payroll/PayrollGarnishmentList.vue'),
+        meta: {
+          title: 'Garnishments',
+          icon: 'scale',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'reports',
         name: 'PayrollReports',
         component: () => import('@/views/PayrollReports.vue'),

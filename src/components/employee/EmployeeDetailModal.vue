@@ -130,6 +130,60 @@
                 </div>
               </div>
             </div>
+
+            <!-- Garnishments -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">Garnishments</h3>
+                <button
+                  @click="showGarnishmentModal = true"
+                  class="inline-flex items-center px-3 py-1 text-xs font-medium text-red-600 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                >
+                  <ScaleIcon class="w-3 h-3 mr-1" />
+                  Manage
+                </button>
+              </div>
+              <div v-if="garnishments.length > 0" class="space-y-2">
+                <div 
+                  v-for="garnishment in garnishments" 
+                  :key="garnishment.uuid"
+                  class="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800"
+                >
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-medium text-orange-800 dark:text-orange-200">
+                        {{ garnishment.name }}
+                      </span>
+                      <span class="text-xs text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-2 py-1 rounded">
+                        {{ getGarnishmentTypeLabel(garnishment.type) }}
+                      </span>
+                      <span 
+                        :class="[
+                          'text-xs px-2 py-1 rounded-full',
+                          garnishment.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          garnishment.status === 'pending_approval' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                          'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        ]"
+                      >
+                        {{ garnishment.status }}
+                      </span>
+                    </div>
+                    <div class="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      Priority: {{ garnishment.priority_order || 'N/A' }}
+                      <span v-if="garnishment.court_order_number" class="ml-2">
+                        • Court Order: {{ garnishment.court_order_number }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-orange-600 dark:text-orange-400">
+                    {{ formatCurrency(garnishment.amount || 0) }}
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                No garnishments configured
+              </div>
+            </div>
           </div>
 
           <!-- Employment Flags -->
@@ -217,19 +271,46 @@
         </div>
       </div>
     </div>
+
+    <!-- Garnishment Management Modal -->
+    <div v-if="showGarnishmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto m-4">
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Garnishment Management - {{ employee.display_name }}
+          </h3>
+          <button
+            @click="showGarnishmentModal = false"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            <XMarkIcon class="w-6 h-6" />
+          </button>
+        </div>
+        <div class="p-6">
+          <GarnishmentList
+            :employee-uuid="employee.uuid"
+            @garnishment-updated="fetchGarnishments"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import EmployeeEditForm from './EmployeeEditForm.vue'
 import { useTheme } from '@/composables/useTheme'
+import { useApi } from '@/composables/useApi'
+import { formatCurrency } from '@/utils/currency'
 import {
   XMarkIcon,
   CheckCircleIcon,
   XCircleIcon,
-  PencilIcon
+  PencilIcon,
+  ScaleIcon
 } from '@heroicons/vue/24/outline'
+import GarnishmentList from '@/components/payroll/GarnishmentList.vue'
 
 const props = defineProps({
   employee: {
@@ -241,7 +322,11 @@ const props = defineProps({
 const emit = defineEmits(['close', 'updated'])
 
 const { isDark } = useTheme()
+const { get } = useApi()
 const isEditing = ref(false)
+const showGarnishmentModal = ref(false)
+const garnishments = ref([])
+const garnishmentTypes = ref({})
 
 // Methods
 const getInitials = (firstName, lastName) => {
@@ -291,8 +376,35 @@ const formatPayFrequency = (frequency) => {
   return frequencies[frequency] || frequency
 }
 
+const fetchGarnishments = async () => {
+  try {
+    const response = await get(`/employees/${props.employee.uuid}/garnishments`)
+    garnishments.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching garnishments:', error)
+  }
+}
+
+const fetchGarnishmentTypes = async () => {
+  try {
+    const response = await get('/garnishments/options')
+    garnishmentTypes.value = response.data.data.garnishment_types || {}
+  } catch (error) {
+    console.error('Error fetching garnishment types:', error)
+  }
+}
+
+const getGarnishmentTypeLabel = (type) => {
+  return garnishmentTypes.value[type] || type
+}
+
 const handleEmployeeUpdated = (updatedEmployee) => {
   isEditing.value = false
   emit('updated', updatedEmployee)
 }
+
+onMounted(() => {
+  fetchGarnishments()
+  fetchGarnishmentTypes()
+})
 </script>
