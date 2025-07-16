@@ -234,16 +234,99 @@
               <!-- Statutory Deductions -->
               <div>
                 <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Statutory Deductions</h5>
-                <div v-if="statutoryDeductions.length > 0" class="space-y-2">
+                <div v-if="statutoryDeductions.length > 0" class="space-y-3">
                   <div
                     v-for="deduction in statutoryDeductions"
                     :key="deduction.code"
-                    class="flex justify-between items-center py-2 px-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded"
+                    class="border border-red-200 dark:border-red-800 rounded-lg"
                   >
-                    <span class="text-sm text-red-800 dark:text-red-200">{{ deduction.name }}</span>
-                    <span class="text-sm font-medium text-red-600 dark:text-red-400">
-                      -{{ formatCurrency(deduction.employee_amount || 0) }}
-                    </span>
+                    <!-- Deduction Header -->
+                    <div 
+                      @click="toggleDeductionDetails(deduction.code)"
+                      class="flex justify-between items-center py-2 px-3 bg-red-50 dark:bg-red-900/20 cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                    >
+                      <div class="flex items-center space-x-2">
+                        <span class="text-sm text-red-800 dark:text-red-200">{{ deduction.name }}</span>
+                        <button class="text-red-600 dark:text-red-400 text-xs">
+                          {{ expandedDeductions.includes(deduction.code) ? 'Hide Details' : 'Show Details' }}
+                        </button>
+                      </div>
+                      <span class="text-sm font-medium text-red-600 dark:text-red-400">
+                        -{{ formatCurrency(deduction.employee_amount || 0) }}
+                      </span>
+                    </div>
+
+                    <!-- Detailed Breakdown -->
+                    <div 
+                      v-if="expandedDeductions.includes(deduction.code) && deduction.calculation_details"
+                      class="px-3 pb-3 bg-white dark:bg-gray-800 border-t border-red-200 dark:border-red-800"
+                    >
+                      <!-- Progressive Bracket Details (PAYE) -->
+                      <div v-if="deduction.calculation_details.method === 'progressive_bracket'" class="mt-2 space-y-2">
+                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Calculation Breakdown:</div>
+                        
+                        <!-- Tax Brackets -->
+                        <div 
+                          v-for="(calc, index) in deduction.calculation_details.bracket_calculations"
+                          :key="index"
+                          class="text-xs"
+                        >
+                          <div v-if="calc.bracket" class="flex justify-between py-1 px-2 bg-gray-50 dark:bg-gray-700 rounded mb-1">
+                            <span class="text-gray-600 dark:text-gray-400">
+                              {{ formatCurrency(calc.bracket.min) }} - 
+                              {{ calc.bracket.max ? formatCurrency(calc.bracket.max) : 'Unlimited' }} 
+                              @ {{ (calc.bracket.rate * 100).toFixed(1) }}%
+                            </span>
+                            <span class="font-medium text-gray-900 dark:text-white">
+                              {{ formatCurrency(calc.tax_amount || 0) }}
+                            </span>
+                          </div>
+                          
+                          <!-- Rebates -->
+                          <div v-else-if="calc.type === 'rebate'" class="flex justify-between py-1 px-2 bg-green-50 dark:bg-green-900/20 rounded mb-1">
+                            <span class="text-green-600 dark:text-green-400">
+                              {{ calc.rebate_type.charAt(0).toUpperCase() + calc.rebate_type.slice(1) }} Rebate
+                            </span>
+                            <span class="font-medium text-green-600 dark:text-green-400">
+                              {{ formatCurrency(calc.amount || 0) }}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
+                          <div class="flex justify-between text-xs font-medium">
+                            <span class="text-gray-700 dark:text-gray-300">Salary Used:</span>
+                            <span class="text-gray-900 dark:text-white">{{ formatCurrency(deduction.calculation_details.salary_used || 0) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Percentage-based Details (UIF, SDL) -->
+                      <div v-else-if="deduction.calculation_details.method === 'percentage'" class="mt-2 space-y-2">
+                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Calculation Breakdown:</div>
+                        
+                        <div class="text-xs space-y-1">
+                          <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Salary Used:</span>
+                            <span class="text-gray-900 dark:text-white">{{ formatCurrency(deduction.calculation_details.salary_used || 0) }}</span>
+                          </div>
+                          <div v-if="deduction.calculation_details.employee_rate" class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Employee Rate:</span>
+                            <span class="text-gray-900 dark:text-white">{{ (parseFloat(deduction.calculation_details.employee_rate) * 100).toFixed(2) }}%</span>
+                          </div>
+                          <div v-if="deduction.calculation_details.employer_rate" class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Employer Rate:</span>
+                            <span class="text-gray-900 dark:text-white">{{ (parseFloat(deduction.calculation_details.employer_rate) * 100).toFixed(2) }}%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- General calculation method display -->
+                      <div v-else class="mt-2">
+                        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Calculation Method:</div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 capitalize">{{ deduction.calculation_details.method?.replace('_', ' ') }}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div v-else class="py-2 px-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded">
@@ -342,6 +425,7 @@ const loading = ref(false)
 const loadingPreview = ref(false)
 const payrollItems = ref([])
 const statutoryDeductions = ref([])
+const expandedDeductions = ref([])
 const payrollItemModalOpen = ref(false)
 const selectedPayrollItem = ref(null)
 
@@ -589,6 +673,15 @@ const deletePayrollItem = async (item) => {
     refreshPreview()
   } catch (error) {
     showNotification('Failed to delete payroll item', 'error')
+  }
+}
+
+const toggleDeductionDetails = (deductionCode) => {
+  const index = expandedDeductions.value.indexOf(deductionCode)
+  if (index > -1) {
+    expandedDeductions.value.splice(index, 1)
+  } else {
+    expandedDeductions.value.push(deductionCode)
   }
 }
 
