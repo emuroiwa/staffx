@@ -51,6 +51,7 @@
                 <option value="">All Types</option>
                 <option value="allowance">Allowances</option>
                 <option value="deduction">Deductions</option>
+                <option value="employer_contribution">Employer Contributions</option>
               </select>
               <select
                 v-model="itemFilters.status"
@@ -216,6 +217,52 @@
                     <span class="text-sm font-medium text-green-800 dark:text-green-200">Total Allowances</span>
                     <span class="text-sm font-bold text-green-600 dark:text-green-400">
                       +{{ formatCurrency(totalAllowances) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Employer Contributions -->
+              <div v-if="employerContributions.length > 0" class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                <h5 class="text-sm font-medium text-purple-900 dark:text-purple-100 mb-3">Employer Contributions</h5>
+                <div class="space-y-2">
+                  <div
+                    v-for="contribution in employerContributions"
+                    :key="contribution.uuid"
+                    class="flex justify-between items-center py-2 px-3 bg-white dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded"
+                  >
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-sm text-purple-800 dark:text-purple-200">{{ contribution.name }}</span>
+                        <span class="text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded">
+                          {{ contribution.contribution_type }}
+                        </span>
+                      </div>
+                      <div v-if="contribution.has_employee_match" class="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                        Employee matches: {{ formatCurrency(contribution.employee_amount || 0) }}
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-sm font-medium text-purple-600 dark:text-purple-400">
+                        {{ formatCurrency(contribution.calculated_amount || getItemAmount(contribution)) }}
+                      </div>
+                      <div v-if="contribution.has_employee_match" class="text-xs text-purple-500 dark:text-purple-400">
+                        Total: {{ formatCurrency((contribution.calculated_amount || getItemAmount(contribution)) + (contribution.employee_amount || 0)) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-purple-200 dark:border-purple-700">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-purple-800 dark:text-purple-200">Total Employer Contributions</span>
+                    <span class="text-sm font-bold text-purple-600 dark:text-purple-400">
+                      {{ formatCurrency(totalEmployerContributions) }}
+                    </span>
+                  </div>
+                  <div v-if="totalEmployeeMatchContributions > 0" class="flex justify-between items-center mt-1">
+                    <span class="text-xs text-purple-600 dark:text-purple-400">Employee Match Contributions</span>
+                    <span class="text-xs font-medium text-purple-500 dark:text-purple-400">
+                      {{ formatCurrency(totalEmployeeMatchContributions) }}
                     </span>
                   </div>
                 </div>
@@ -471,6 +518,15 @@ const deductions = computed(() => {
   )
 })
 
+const employerContributions = computed(() => {
+  if (!Array.isArray(payrollItems.value)) {
+    return []
+  }
+  return payrollItems.value.filter(item => 
+    item && item.type === 'employer_contribution' && item.status === 'active'
+  )
+})
+
 const totalAllowances = computed(() => {
   return allowances.value.reduce((sum, item) => {
     const amount = item.calculated_amount || getItemAmount(item)
@@ -489,6 +545,23 @@ const totalDeductions = computed(() => {
   }, 0)
   
   return payrollDeductions + statutoryDeductionsTotal
+})
+
+const totalEmployerContributions = computed(() => {
+  return employerContributions.value.reduce((sum, item) => {
+    const amount = item.calculated_amount || getItemAmount(item)
+    return sum + (parseFloat(amount) || 0)
+  }, 0)
+})
+
+const totalEmployeeMatchContributions = computed(() => {
+  return employerContributions.value.reduce((sum, item) => {
+    if (item.has_employee_match) {
+      const amount = item.employee_amount || 0
+      return sum + (parseFloat(amount) || 0)
+    }
+    return sum
+  }, 0)
 })
 
 const grossSalary = computed(() => {
@@ -555,9 +628,12 @@ const getInitials = (firstName, lastName) => {
 }
 
 const getTypeBadgeClass = (type) => {
-  return type === 'allowance' 
-    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+  const classes = {
+    allowance: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    deduction: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    employer_contribution: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+  }
+  return classes[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
 }
 
 const getStatusBadgeClass = (status) => {

@@ -6,7 +6,7 @@
         <div class="flex justify-between items-center py-6">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Payroll Templates</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage company-wide allowances and deductions</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage company-wide allowances, deductions, and employer contributions</p>
           </div>
           <div class="flex items-center space-x-3">
             <button
@@ -24,7 +24,7 @@
     <!-- Content Area -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
@@ -72,6 +72,18 @@
             </div>
           </div>
         </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <BuildingOfficeIcon class="h-8 w-8 text-purple-600" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Employer Contributions</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ employerContributionsCount }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Filters and Search -->
@@ -105,6 +117,7 @@
               <option value="">All Types</option>
               <option value="allowance">Allowances</option>
               <option value="deduction">Deductions</option>
+              <option value="employer_contribution">Employer Contributions</option>
             </select>
           </div>
 
@@ -153,10 +166,12 @@
                           'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2',
                           template.type === 'allowance'
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : template.type === 'employer_contribution'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                         ]"
                       >
-                        {{ template.type === 'allowance' ? 'Allowance' : 'Deduction' }}
+                        {{ getTemplateTypeLabel(template.type) }}
                       </span>
                       <span
                         :class="[
@@ -348,6 +363,7 @@ import {
   CheckCircleIcon,
   PlusCircleIcon,
   MinusCircleIcon,
+  BuildingOfficeIcon,
   MagnifyingGlassIcon,
   EllipsisVerticalIcon
 } from '@heroicons/vue/24/outline'
@@ -507,6 +523,15 @@ const formatCalculationMethod = (method) => {
   return methods[method] || method
 }
 
+const getTemplateTypeLabel = (type) => {
+  const types = {
+    allowance: 'Allowance',
+    deduction: 'Deduction',
+    employer_contribution: 'Employer Contribution'
+  }
+  return types[type] || type
+}
+
 // Computed statistics
 const activeTemplatesCount = computed(() => {
   return Array.isArray(templates.value) ? templates.value.filter(t => t.is_active).length : 0
@@ -518,6 +543,10 @@ const allowancesCount = computed(() => {
 
 const deductionsCount = computed(() => {
   return Array.isArray(templates.value) ? templates.value.filter(t => t.type === 'deduction').length : 0
+})
+
+const employerContributionsCount = computed(() => {
+  return Array.isArray(templates.value) ? templates.value.filter(t => t.type === 'employer_contribution').length : 0
 })
 
 // Close dropdown when clicking outside
