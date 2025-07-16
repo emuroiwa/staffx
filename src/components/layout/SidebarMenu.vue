@@ -140,15 +140,6 @@
                 <span class="text-sm">Organogram</span>
               </div>
             </router-link>
-            <router-link to="/employees/payroll" v-slot="{ isActive }" class="block">
-              <div
-                @click="themeStore.hideMobileSidebar"
-                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
-              >
-                <DollarSign class="w-4 h-4 flex-shrink-0 mr-3" />
-                <span class="text-sm">Employee Payroll</span>
-              </div>
-            </router-link>
           </div>
         </transition>
       </div>
@@ -210,6 +201,15 @@
                 <span class="text-sm">Payroll Templates</span>
               </div>
             </router-link>
+            <router-link to="/payroll/employees" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <DollarSign class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Employee Payroll</span>
+              </div>
+            </router-link>
             <router-link to="/payroll/employee-items" v-slot="{ isActive }" class="block">
               <div
                 @click="themeStore.hideMobileSidebar"
@@ -226,6 +226,15 @@
               >
                 <Scale class="w-4 h-4 flex-shrink-0 mr-3" />
                 <span class="text-sm">Garnishments</span>
+              </div>
+            </router-link>
+            <router-link to="/payroll/statutory-deductions" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <Shield class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Statutory Deductions</span>
               </div>
             </router-link>
             <router-link to="/payroll/reports" v-slot="{ isActive }" class="block">
@@ -338,7 +347,8 @@ import {
   Settings,
   Calculator,
   DollarSign,
-  Scale
+  Scale,
+  Shield
 } from 'lucide-vue-next'
 
 const route = useRoute()

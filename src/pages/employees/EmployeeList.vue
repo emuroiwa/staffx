@@ -220,19 +220,19 @@
                       @click="viewEmployee(employee)"
                       class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-200"
                     >
-                      View
+                      <EyeIcon class="w-4 h-4" />
                     </button>
                     <button
                       @click="editEmployee(employee)"
                       class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors duration-200"
                     >
-                      Edit
+                      <PencilIcon class="w-4 h-4" />
                     </button>
                     <button
                       @click="deleteEmployee(employee)"
                       class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
                     >
-                      Delete
+                      <TrashIcon class="w-4 h-4" />
                     </button>
                   </div>
                 </td>
@@ -339,7 +339,10 @@ import {
   ArrowDownTrayIcon,
   CheckCircleIcon,
   StarIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon
 } from '@heroicons/vue/24/outline'
 
 const employeeStore = useEmployeeStore()

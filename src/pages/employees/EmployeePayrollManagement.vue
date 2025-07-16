@@ -97,59 +97,112 @@
         </p>
       </div>
 
-      <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div
-          v-for="employee in filteredEmployees"
-          :key="employee.uuid"
-          class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                  <span class="text-blue-600 dark:text-blue-300 font-medium text-sm">
-                    {{ getInitials(employee.first_name, employee.last_name) }}
-                  </span>
+      <div v-else class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Employee
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Position
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Department
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Status
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Salary
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Payroll Items
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr
+              v-for="employee in filteredEmployees"
+              :key="employee.uuid"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              <!-- Employee Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                      <span class="text-blue-600 dark:text-blue-300 font-medium text-sm">
+                        {{ getInitials(employee.first_name, employee.last_name) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ employee.display_name }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ employee.employee_id }}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-2">
-                  <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {{ employee.display_name }}
-                  </h3>
-                  <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="getStatusBadgeClass(employee.status)"
-                  >
-                    {{ employee.status }}
-                  </span>
+              </td>
+              
+              <!-- Position Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 dark:text-white">
+                  {{ employee.position?.name || '-' }}
                 </div>
-                <div class="mt-1 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                  <span>{{ employee.employee_id }}</span>
-                  <span>{{ employee.position?.name }}</span>
-                  <span>{{ employee.department?.name }}</span>
-                  <span class="font-medium">{{ employee.formatted_salary }}</span>
+              </td>
+              
+              <!-- Department Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 dark:text-white">
+                  {{ employee.department?.name || '-' }}
                 </div>
-              </div>
-            </div>
-            <div class="flex items-center space-x-2">
-              <!-- Payroll Items Count -->
-              <div class="text-center">
+              </td>
+              
+              <!-- Status Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="getStatusBadgeClass(employee.status)"
+                >
+                  {{ employee.status }}
+                </span>
+              </td>
+              
+              <!-- Salary Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ getEmployeePayrollItemsCount(employee.uuid) }}
+                  {{ employee.formatted_salary || '-' }}
                 </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Items</div>
-              </div>
-              <button
-                @click="openPayslipBuilder(employee)"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-              >
-                <CurrencyDollarIcon class="w-4 h-4 mr-2" />
-                Manage Payroll
-              </button>
-            </div>
-          </div>
-        </div>
+              </td>
+              
+              <!-- Payroll Items Column -->
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                     :class="getPayrollItemsBadgeClass(getEmployeePayrollItemsCount(employee.uuid))">
+                  {{ getEmployeePayrollItemsCount(employee.uuid) }} Items
+                </div>
+              </td>
+              
+              <!-- Actions Column -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  @click="openPayslipBuilder(employee)"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                >
+                  <CurrencyDollarIcon class="w-4 h-4 mr-2" />
+                  Manage Payroll
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Pagination -->
@@ -367,6 +420,18 @@ const getEmployeePayrollItemsCount = (employeeUuid) => {
     return 0
   }
   return payrollItems.value.filter(item => item.employee_uuid === employeeUuid).length
+}
+
+const getPayrollItemsBadgeClass = (count) => {
+  if (count === 0) {
+    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  } else if (count <= 3) {
+    return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+  } else if (count <= 6) {
+    return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+  } else {
+    return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+  }
 }
 
 const openPayslipBuilder = (employee) => {

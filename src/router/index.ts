@@ -116,16 +116,6 @@ const routes = [
           icon: 'users',
           requiresAuth: true
         }
-      },
-      {
-        path: 'payroll',
-        name: 'EmployeePayroll',
-        component: () => import('@/pages/employees/EmployeePayrollManagement.vue'),
-        meta: {
-          title: 'Employee Payroll Management',
-          icon: 'currency-dollar',
-          requiresAuth: true
-        }
       }
     ]
   },
@@ -222,6 +212,16 @@ const routes = [
         }
       },
       {
+        path: 'employees',
+        name: 'EmployeePayroll',
+        component: () => import('@/pages/employees/EmployeePayrollManagement.vue'),
+        meta: {
+          title: 'Employee Payroll Management',
+          icon: 'currency-dollar',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'employee-items',
         name: 'EmployeePayrollItems',
         component: () => import('@/pages/payroll/EmployeePayrollItemList.vue'),
@@ -238,6 +238,16 @@ const routes = [
         meta: {
           title: 'Garnishments',
           icon: 'scale',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'statutory-deductions',
+        name: 'StatutoryDeductions',
+        component: () => import('@/pages/payroll/StatutoryDeductionManagement.vue'),
+        meta: {
+          title: 'Statutory Deductions',
+          icon: 'shield',
           requiresAuth: true
         }
       },

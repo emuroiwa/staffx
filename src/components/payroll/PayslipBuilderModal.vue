@@ -295,13 +295,31 @@
                     >
                       <div class="flex items-center space-x-2">
                         <span class="text-sm text-red-800 dark:text-red-200">{{ deduction.name }}</span>
+                        
+                        <!-- Paid by indicator -->
+                        <span v-if="deduction.paid_by === 'employer'" 
+                              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          Employer Paid
+                        </span>
+                        
+                        <!-- Taxable benefit indicator -->
+                        <span v-if="deduction.is_taxable" 
+                              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                          Taxable Benefit
+                        </span>
+                        
                         <button class="text-red-600 dark:text-red-400 text-xs">
                           {{ expandedDeductions.includes(deduction.code) ? 'Hide Details' : 'Show Details' }}
                         </button>
                       </div>
-                      <span class="text-sm font-medium text-red-600 dark:text-red-400">
-                        -{{ formatCurrency(deduction.employee_amount || 0) }}
-                      </span>
+                      <div class="text-right">
+                        <span class="text-sm font-medium text-red-600 dark:text-red-400">
+                          -{{ formatCurrency(deduction.employee_amount || 0) }}
+                        </span>
+                        <div v-if="deduction.paid_by === 'employer' && deduction.employer_amount > 0" class="text-xs text-blue-600 dark:text-blue-400">
+                          (Employer: {{ formatCurrency(deduction.employer_amount) }})
+                        </div>
+                      </div>
                     </div>
 
                     <!-- Detailed Breakdown -->
@@ -523,7 +541,13 @@ const filteredPayrollItems = computed(() => {
     return []
   }
   
-  let filtered = payrollItems.value.filter(item => item && (item.uuid || item.id))
+  let filtered = payrollItems.value.filter(item => 
+    item && 
+    item.uuid && 
+    item.uuid !== null && 
+    item.uuid !== undefined && 
+    item.uuid !== ''
+  )
 
   if (itemFilters.type) {
     filtered = filtered.filter(item => item?.type === itemFilters.type)
@@ -541,7 +565,13 @@ const allowances = computed(() => {
     return []
   }
   return payrollItems.value.filter(item => 
-    item && item.type === 'allowance' && item.status === 'active'
+    item && 
+    item.uuid && 
+    item.uuid !== null && 
+    item.uuid !== undefined && 
+    item.uuid !== '' &&
+    item.type === 'allowance' && 
+    item.status === 'active'
   )
 })
 
@@ -550,7 +580,13 @@ const deductions = computed(() => {
     return []
   }
   return payrollItems.value.filter(item => 
-    item && item.type === 'deduction' && item.status === 'active'
+    item && 
+    item.uuid && 
+    item.uuid !== null && 
+    item.uuid !== undefined && 
+    item.uuid !== '' &&
+    item.type === 'deduction' && 
+    item.status === 'active'
   )
 })
 
@@ -559,7 +595,13 @@ const employerContributions = computed(() => {
     return []
   }
   return payrollItems.value.filter(item => 
-    item && item.type === 'employer_contribution' && item.status === 'active'
+    item && 
+    item.uuid && 
+    item.uuid !== null && 
+    item.uuid !== undefined && 
+    item.uuid !== '' &&
+    item.type === 'employer_contribution' && 
+    item.status === 'active'
   )
 })
 
@@ -568,7 +610,13 @@ const garnishments = computed(() => {
     return []
   }
   return payrollItems.value.filter(item => 
-    item && item.type === 'garnishment' && item.status === 'active'
+    item && 
+    item.uuid && 
+    item.uuid !== null && 
+    item.uuid !== undefined && 
+    item.uuid !== '' &&
+    item.type === 'garnishment' && 
+    item.status === 'active'
   ).sort((a, b) => (a.priority_order || 999) - (b.priority_order || 999))
 })
 
@@ -638,14 +686,30 @@ const loadPayrollItems = async () => {
 
   try {
     loading.value = true
-    const response = await get('/employee-payroll-items', {
+    const response = await get('/payroll/employee-payroll-data', {
       params: {
         employee_uuid: props.employee.uuid
       }
     })
     
-    // Laravel ResourceCollection returns data in 'data' field
-    payrollItems.value = response.data.data.data || []
+    // Extract payroll items from the comprehensive data
+    const data = response.data.data
+    const items = data.payroll_items || []
+    
+    // Filter out items with invalid UUIDs
+    payrollItems.value = items.filter(item => 
+      item && 
+      item.uuid && 
+      item.uuid !== null && 
+      item.uuid !== undefined && 
+      item.uuid !== '' &&
+      typeof item.uuid === 'string'
+    )
+    
+    // Also update statutory deductions if available
+    if (data.statutory_deductions) {
+      statutoryDeductions.value = data.statutory_deductions
+    }
   } catch (error) {
     console.error('Failed to load payroll items:', error)
     showNotification('Failed to load payroll items', 'error')
@@ -818,16 +882,36 @@ const toggleDeductionDetails = (deductionCode) => {
 
 const generatePayslip = async () => {
   try {
+    // Filter and validate payroll items before sending
+    const validPayrollItems = payrollItems.value.filter(item => 
+      item && 
+      item.status === 'active' && 
+      item.uuid && 
+      item.uuid !== null && 
+      item.uuid !== undefined && 
+      item.uuid !== ''
+    ).map(item => ({
+      uuid: item.uuid,
+      name: item.name,
+      type: item.type,
+      calculation_method: item.calculation_method,
+      amount: item.amount,
+      percentage: item.percentage,
+      calculated_amount: item.calculated_amount || getItemAmount(item)
+    }))
+    
     await post('/payroll/generate-payslip', {
       employee_uuid: props.employee.uuid,
-      payroll_items: payrollItems.value.filter(item => item.status === 'active'),
+      payroll_items: validPayrollItems,
       statutory_deductions: statutoryDeductions.value
     })
     
     showNotification('Payslip generated successfully', 'success')
     // Handle payslip download or display
   } catch (error) {
-    showNotification('Failed to generate payslip', 'error')
+    console.error('Payslip generation error:', error)
+    const errorMessage = error.response?.data?.message || 'Failed to generate payslip'
+    showNotification(errorMessage, 'error')
   }
 }
 
