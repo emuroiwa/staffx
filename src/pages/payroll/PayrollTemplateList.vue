@@ -407,16 +407,16 @@ const fetchTemplates = async (page = 1) => {
 
     const response = await get('/payroll-templates', { params })
     
-    // Laravel ResourceCollection returns data in 'data' and pagination in 'meta'
-    templates.value = response.data.data || []
-    const meta = response.data.meta || {}
+    // API returns paginated data directly in response.data.data structure
+    const responseData = response.data.data || {}
+    templates.value = responseData.data || []
     pagination.value = {
-      current_page: meta.current_page || 1,
-      last_page: meta.last_page || 1,
-      total: meta.total || 0,
-      per_page: meta.per_page || 15,
-      from: meta.from || 0,
-      to: meta.to || 0
+      current_page: responseData.current_page || 1,
+      last_page: responseData.last_page || 1,
+      total: responseData.total || 0,
+      per_page: responseData.per_page || 15,
+      from: responseData.from || 0,
+      to: responseData.to || 0
     }
   } catch (error) {
     templates.value = [] // Ensure templates is always an array

@@ -52,6 +52,7 @@
                 <option value="allowance">Allowances</option>
                 <option value="deduction">Deductions</option>
                 <option value="employer_contribution">Employer Contributions</option>
+                <option value="garnishment">Garnishments</option>
               </select>
               <select
                 v-model="itemFilters.status"
@@ -406,6 +407,41 @@
                 </div>
               </div>
 
+              <!-- Garnishments -->
+              <div v-if="garnishments.length > 0">
+                <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Garnishments</h5>
+                <div class="space-y-2">
+                  <div
+                    v-for="garnishment in garnishments"
+                    :key="garnishment.uuid"
+                    class="flex justify-between items-center py-2 px-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded"
+                  >
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-sm text-orange-800 dark:text-orange-200">{{ garnishment.name }}</span>
+                        <span v-if="garnishment.priority_order" class="text-xs text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-1 rounded">
+                          Priority {{ garnishment.priority_order }}
+                        </span>
+                      </div>
+                      <div v-if="garnishment.court_order_number" class="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                        Court Order: {{ garnishment.court_order_number }}
+                      </div>
+                    </div>
+                    <span class="text-sm font-medium text-orange-600 dark:text-orange-400">
+                      -{{ formatCurrency(garnishment.calculated_amount || getItemAmount(garnishment)) }}
+                    </span>
+                  </div>
+                </div>
+                <div class="mt-2 pt-2 border-t border-orange-200 dark:border-orange-800">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-orange-800 dark:text-orange-200">Total Garnishments</span>
+                    <span class="text-sm font-bold text-orange-600 dark:text-orange-400">
+                      -{{ formatCurrency(totalGarnishments) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Net Salary -->
               <div class="bg-gray-100 dark:bg-gray-600 border-2 border-gray-300 dark:border-gray-500 rounded-lg p-4">
                 <div class="flex justify-between items-center">
@@ -527,8 +563,24 @@ const employerContributions = computed(() => {
   )
 })
 
+const garnishments = computed(() => {
+  if (!Array.isArray(payrollItems.value)) {
+    return []
+  }
+  return payrollItems.value.filter(item => 
+    item && item.type === 'garnishment' && item.status === 'active'
+  ).sort((a, b) => (a.priority_order || 999) - (b.priority_order || 999))
+})
+
 const totalAllowances = computed(() => {
   return allowances.value.reduce((sum, item) => {
+    const amount = item.calculated_amount || getItemAmount(item)
+    return sum + (parseFloat(amount) || 0)
+  }, 0)
+})
+
+const totalGarnishments = computed(() => {
+  return garnishments.value.reduce((sum, item) => {
     const amount = item.calculated_amount || getItemAmount(item)
     return sum + (parseFloat(amount) || 0)
   }, 0)
@@ -544,7 +596,9 @@ const totalDeductions = computed(() => {
     return sum + (parseFloat(item.employee_amount) || 0)
   }, 0)
   
-  return payrollDeductions + statutoryDeductionsTotal
+  const garnishmentsTotal = totalGarnishments.value
+  
+  return payrollDeductions + statutoryDeductionsTotal + garnishmentsTotal
 })
 
 const totalEmployerContributions = computed(() => {
@@ -631,7 +685,8 @@ const getTypeBadgeClass = (type) => {
   const classes = {
     allowance: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     deduction: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    employer_contribution: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+    employer_contribution: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    garnishment: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
   }
   return classes[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
 }
