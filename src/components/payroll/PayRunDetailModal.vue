@@ -198,6 +198,7 @@
                     {{ formatCurrency(employee.calculation?.calculated_net) }}
                   </td>
                   <td class="px-6 py-4">
+                    {{ employee }}
                     <button
                       @click="viewEmployeeDetail(employee)"
                       class="text-blue-600 hover:text-blue-900 text-sm"
@@ -218,6 +219,14 @@
         </div>
       </div>
     </div>
+    
+    <!-- Employee Payroll Detail Modal -->
+    <EmployeePayrollDetailModal
+      v-if="showEmployeeDetailModal && selectedEmployee"
+      :employee="selectedEmployee"
+      :payRun="payRun"
+      @close="closeEmployeeDetailModal"
+    />
   </div>
 </template>
 
@@ -226,6 +235,7 @@ import { ref, onMounted, computed } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import api from '@/services/api'
 import { useNotifications } from '@/composables/useNotifications'
+import EmployeePayrollDetailModal from './EmployeePayrollDetailModal.vue'
 
 const props = defineProps({
   payRun: {
@@ -243,6 +253,8 @@ const processing = ref(false)
 const payRunDetails = ref(null)
 const employeeFilter = ref('')
 const employeeSearch = ref('')
+const showEmployeeDetailModal = ref(false)
+const selectedEmployee = ref(null)
 
 // Computed properties
 const filteredEmployees = computed(() => {
@@ -388,8 +400,13 @@ const close = async () => {
 }
 
 const viewEmployeeDetail = (employee) => {
-  // TODO: Open employee payroll detail modal
-  console.log('View employee detail:', employee)
+  selectedEmployee.value = employee
+  showEmployeeDetailModal.value = true
+}
+
+const closeEmployeeDetailModal = () => {
+  showEmployeeDetailModal.value = false
+  selectedEmployee.value = null
 }
 
 // Helper functions
