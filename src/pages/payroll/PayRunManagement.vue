@@ -107,10 +107,10 @@
         
         <div class="flex items-end">
           <button
-            @click="loadPayRuns"
+            @click="resetFilters"
             class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
           >
-            Apply Filters
+            Reset Filters
           </button>
         </div>
       </div>
@@ -162,9 +162,12 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="getStatusClass(payRun.status)" class="px-2 py-1 text-xs font-medium rounded-full">
-                  {{ getStatusLabel(payRun.status) }}
-                </span>
+                <div class="flex items-center gap-2">
+                  <span :class="getStatusClass(payRun.status)" class="px-2 py-1 text-xs font-medium rounded-full">
+                    {{ getStatusLabel(payRun.status) }}
+                  </span>
+                  <div v-if="isProcessing(payRun)" class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ payRun.employee_count }}
@@ -186,23 +189,26 @@
                   <button
                     v-if="canCalculate(payRun)"
                     @click="calculatePayRun(payRun)"
-                    class="text-green-600 hover:text-green-900"
+                    :disabled="isProcessing(payRun)"
+                    :class="isProcessing(payRun) ? 'text-gray-400 cursor-not-allowed' : 'text-green-600 hover:text-green-900'"
                   >
-                    Calculate
+                    {{ isProcessing(payRun) ? 'Calculating...' : 'Calculate' }}
                   </button>
                   <button
                     v-if="canApprove(payRun)"
                     @click="approvePayRun(payRun)"
-                    class="text-purple-600 hover:text-purple-900"
+                    :disabled="isProcessing(payRun)"
+                    :class="isProcessing(payRun) ? 'text-gray-400 cursor-not-allowed' : 'text-purple-600 hover:text-purple-900'"
                   >
-                    Approve
+                    {{ isProcessing(payRun) ? 'Approving...' : 'Approve' }}
                   </button>
                   <button
                     v-if="canProcess(payRun)"
                     @click="processPayRun(payRun)"
-                    class="text-orange-600 hover:text-orange-900"
+                    :disabled="isProcessing(payRun)"
+                    :class="isProcessing(payRun) ? 'text-gray-400 cursor-not-allowed' : 'text-orange-600 hover:text-orange-900'"
                   >
-                    Process
+                    {{ isProcessing(payRun) ? 'Processing...' : 'Process' }}
                   </button>
                 </div>
               </td>
@@ -256,7 +262,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import {
   PlusIcon,
   DocumentIcon,
@@ -278,6 +284,7 @@ const loading = ref(false)
 const showModal = ref(false)
 const showDetailModal = ref(false)
 const selectedPayRun = ref(null)
+const processingPayRuns = ref(new Set()) // Track which pay runs are being processed
 
 const filters = ref({
   status: '',
@@ -344,58 +351,116 @@ const viewPayRun = (payRun) => {
 const calculatePayRun = async (payRun) => {
   if (!confirm('Calculate payroll for all employees in this pay run?')) return
 
+  // Add to processing set
+  processingPayRuns.value.add(payRun.uuid)
+  
+  // Optimistic update
+  const optimisticUpdate = { ...payRun, status: 'calculating' }
+  updatePayRunInList(optimisticUpdate)
+
   try {
-    await api.post(`/pay-runs/${payRun.uuid}/calculate`)
+    const response = await api.post(`/pay-runs/${payRun.uuid}/calculate`)
     showSuccess('Pay run calculation started')
-    loadPayRuns()
+    
+    // Update with real response
+    updatePayRunInList(response.data.data)
+    await loadStatistics()
   } catch (error) {
     showError('Failed to calculate pay run')
+    // Revert optimistic update on error
+    updatePayRunInList(payRun)
     console.error('Error calculating pay run:', error)
+  } finally {
+    processingPayRuns.value.delete(payRun.uuid)
   }
 }
 
 const approvePayRun = async (payRun) => {
   if (!confirm('Approve this pay run for processing?')) return
 
+  // Add to processing set
+  processingPayRuns.value.add(payRun.uuid)
+  
+  // Optimistic update
+  const optimisticUpdate = { ...payRun, status: 'approved' }
+  updatePayRunInList(optimisticUpdate)
+
   try {
-    await api.post(`/pay-runs/${payRun.uuid}/approve`)
+    const response = await api.post(`/pay-runs/${payRun.uuid}/approve`)
     showSuccess('Pay run approved successfully')
-    loadPayRuns()
+    
+    // Update with real response
+    updatePayRunInList(response.data.data)
+    await loadStatistics()
   } catch (error) {
     showError('Failed to approve pay run')
+    // Revert optimistic update on error
+    updatePayRunInList(payRun)
     console.error('Error approving pay run:', error)
+  } finally {
+    processingPayRuns.value.delete(payRun.uuid)
   }
 }
 
 const processPayRun = async (payRun) => {
   if (!confirm('Process this pay run? This will generate payslips and payment files.')) return
 
+  // Add to processing set
+  processingPayRuns.value.add(payRun.uuid)
+  
+  // Optimistic update
+  const optimisticUpdate = { ...payRun, status: 'processing' }
+  updatePayRunInList(optimisticUpdate)
+
   try {
-    await api.post(`/pay-runs/${payRun.uuid}/process`)
+    const response = await api.post(`/pay-runs/${payRun.uuid}/process`)
     showSuccess('Pay run processing started')
-    loadPayRuns()
+    
+    // Update with real response
+    updatePayRunInList(response.data.data)
+    await loadStatistics()
   } catch (error) {
     showError('Failed to process pay run')
+    // Revert optimistic update on error
+    updatePayRunInList(payRun)
     console.error('Error processing pay run:', error)
+  } finally {
+    processingPayRuns.value.delete(payRun.uuid)
   }
 }
 
-const handlePayRunSaved = () => {
+const handlePayRunSaved = (savedPayRun) => {
   closeModal()
-  loadPayRuns()
+  
+  if (savedPayRun) {
+    // If editing, update in place; if creating, reload to get proper pagination
+    if (selectedPayRun.value) {
+      updatePayRunInList(savedPayRun)
+    } else {
+      loadPayRuns()
+    }
+  } else {
+    loadPayRuns()
+  }
   loadStatistics()
 }
 
-const handlePayRunUpdated = () => {
+const handlePayRunUpdated = (updatedPayRun) => {
   closeDetailModal()
-  loadPayRuns()
+  
+  // Update the pay run in the list immediately if provided
+  if (updatedPayRun) {
+    updatePayRunInList(updatedPayRun)
+  } else {
+    loadPayRuns()
+  }
   loadStatistics()
 }
 
 const changePage = (page) => {
   if (page < 1 || page > payRuns.value.last_page) return
   filters.value.page = page
-  loadPayRuns()
+  // loadPayRuns will be triggered by the watcher
 }
 
 // Helper functions
@@ -442,6 +507,34 @@ const getStatusLabel = (status) => {
   return labels[status] || status
 }
 
+// New reactive methods
+const updatePayRunInList = (updatedPayRun) => {
+  if (!payRuns.value.data) return
+  
+  const index = payRuns.value.data.findIndex(pr => pr.uuid === updatedPayRun.uuid)
+  if (index !== -1) {
+    payRuns.value.data[index] = updatedPayRun
+  }
+}
+
+const resetFilters = () => {
+  filters.value = {
+    status: '',
+    pay_frequency: '',
+    search: '',
+    page: 1
+  }
+}
+
+// Debounced load function
+let loadTimeout = null
+const debouncedLoadPayRuns = () => {
+  if (loadTimeout) clearTimeout(loadTimeout)
+  loadTimeout = setTimeout(() => {
+    loadPayRuns()
+  }, 300)
+}
+
 const canCalculate = (payRun) => {
   return payRun.status === 'draft' || payRun.status === 'error'
 }
@@ -453,6 +546,29 @@ const canApprove = (payRun) => {
 const canProcess = (payRun) => {
   return payRun.status === 'approved'
 }
+
+const isProcessing = (payRun) => {
+  return processingPayRuns.value.has(payRun.uuid)
+}
+
+// Watchers for reactive filtering
+watch(
+  () => [filters.value.status, filters.value.pay_frequency, filters.value.search],
+  () => {
+    filters.value.page = 1 // Reset to first page when filters change
+    debouncedLoadPayRuns()
+  },
+  { deep: true }
+)
+
+watch(
+  () => filters.value.page,
+  () => {
+    if (filters.value.page > 1) { // Only trigger if not initial load
+      loadPayRuns()
+    }
+  }
+)
 
 // Lifecycle
 onMounted(() => {

@@ -381,10 +381,10 @@ const save = async () => {
     const url = isEdit.value ? `/pay-runs/${props.payRun.uuid}` : '/pay-runs'
     const method = isEdit.value ? 'put' : 'post'
     
-    await api[method](url, form.value)
+    const response = await api[method](url, form.value)
     
     showSuccess(`Pay run ${isEdit.value ? 'updated' : 'created'} successfully`)
-    emit('saved')
+    emit('saved', response.data.data) // Pass the saved pay run data
   } catch (error) {
     showError(`Failed to ${isEdit.value ? 'update' : 'create'} pay run`)
     console.error('Error saving pay run:', error)

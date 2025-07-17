@@ -198,7 +198,6 @@
                     {{ formatCurrency(employee.calculation?.calculated_net) }}
                   </td>
                   <td class="px-6 py-4">
-                    {{ employee }}
                     <button
                       @click="viewEmployeeDetail(employee)"
                       class="text-blue-600 hover:text-blue-900 text-sm"
@@ -319,10 +318,10 @@ const calculate = async () => {
   
   processing.value = true
   try {
-    await api.post(`/pay-runs/${props.payRun.uuid}/calculate`)
+    const response = await api.post(`/pay-runs/${props.payRun.uuid}/calculate`)
     showSuccess('Pay run calculation started')
     await loadPayRunDetails()
-    emit('updated')
+    emit('updated', response.data.data) // Pass updated pay run data
   } catch (error) {
     showError('Failed to calculate pay run')
     console.error('Error calculating pay run:', error)
@@ -336,10 +335,10 @@ const approve = async () => {
   
   processing.value = true
   try {
-    await api.post(`/pay-runs/${props.payRun.uuid}/approve`)
+    const response = await api.post(`/pay-runs/${props.payRun.uuid}/approve`)
     showSuccess('Pay run approved successfully')
     await loadPayRunDetails()
-    emit('updated')
+    emit('updated', response.data.data) // Pass updated pay run data
   } catch (error) {
     showError('Failed to approve pay run')
     console.error('Error approving pay run:', error)
@@ -353,10 +352,10 @@ const process = async () => {
   
   processing.value = true
   try {
-    await api.post(`/pay-runs/${props.payRun.uuid}/process`)
+    const response = await api.post(`/pay-runs/${props.payRun.uuid}/process`)
     showSuccess('Pay run processing started')
     await loadPayRunDetails()
-    emit('updated')
+    emit('updated', response.data.data) // Pass updated pay run data
   } catch (error) {
     showError('Failed to process pay run')
     console.error('Error processing pay run:', error)
@@ -370,10 +369,10 @@ const finalize = async () => {
   
   processing.value = true
   try {
-    await api.post(`/pay-runs/${props.payRun.uuid}/finalize`)
+    const response = await api.post(`/pay-runs/${props.payRun.uuid}/finalize`)
     showSuccess('Pay run finalized successfully')
     await loadPayRunDetails()
-    emit('updated')
+    emit('updated', response.data.data) // Pass updated pay run data
   } catch (error) {
     showError('Failed to finalize pay run')
     console.error('Error finalizing pay run:', error)
@@ -387,10 +386,10 @@ const close = async () => {
   
   processing.value = true
   try {
-    await api.post(`/pay-runs/${props.payRun.uuid}/close`)
+    const response = await api.post(`/pay-runs/${props.payRun.uuid}/close`)
     showSuccess('Pay run closed successfully')
     await loadPayRunDetails()
-    emit('updated')
+    emit('updated', response.data.data) // Pass updated pay run data
   } catch (error) {
     showError('Failed to close pay run')
     console.error('Error closing pay run:', error)
