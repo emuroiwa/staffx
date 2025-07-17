@@ -192,6 +192,15 @@
                 <span class="text-sm">Payroll Processing</span>
               </div>
             </router-link>
+            <router-link to="/payroll/pay-runs" v-slot="{ isActive }" class="block">
+              <div
+                @click="themeStore.hideMobileSidebar"
+                :class="['sidebar-item text-sm group', isActive ? 'active' : 'text-gray-600 dark:text-gray-400']"
+              >
+                <PlayCircle class="w-4 h-4 flex-shrink-0 mr-3" />
+                <span class="text-sm">Pay Run Management</span>
+              </div>
+            </router-link>
             <router-link to="/payroll/templates" v-slot="{ isActive }" class="block">
               <div
                 @click="themeStore.hideMobileSidebar"
@@ -346,6 +355,7 @@ import {
   FileText,
   Settings,
   Calculator,
+  PlayCircle,
   DollarSign,
   Scale,
   Shield

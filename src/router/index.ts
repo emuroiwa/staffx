@@ -252,6 +252,16 @@ const routes = [
         }
       },
       {
+        path: 'pay-runs',
+        name: 'PayRunManagement',
+        component: () => import('@/pages/payroll/PayRunManagement.vue'),
+        meta: {
+          title: 'Pay Run Management',
+          icon: 'play-circle',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'reports',
         name: 'PayrollReports',
         component: () => import('@/views/PayrollReports.vue'),
