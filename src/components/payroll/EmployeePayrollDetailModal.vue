@@ -22,7 +22,7 @@
         <!-- Employee Information -->
         <div v-if="!loading && payrollData" class="bg-gray-50 rounded-lg p-4">
           <h3 class="text-lg font-medium text-gray-900 mb-3">Employee Information</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <div class="text-sm font-medium text-gray-500">Name</div>
               <div class="text-lg text-gray-900">{{ payrollData.employee?.first_name + ' ' + payrollData.employee?.last_name }} </div>
@@ -30,6 +30,21 @@
             <div>
               <div class="text-sm font-medium text-gray-500">Employee ID</div>
               <div class="text-lg text-gray-900">{{ payrollData.employee?.employee_id || 'N/A' }}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Employment Type</div>
+              <span :class="getEmploymentTypeClass(payrollData.employment_type)" 
+                    class="px-2 py-1 text-xs font-medium rounded-full">
+                {{ formatEmploymentType(payrollData.employment_type) }}
+              </span>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Basic Salary/Rate</div>
+              <div class="text-lg text-gray-900">
+                {{ formatCurrency(payrollData.basic_salary) }}
+                <span v-if="payrollData.employment_type === 'hourly'" class="text-sm text-gray-600">/hr</span>
+                <span v-else-if="payrollData.employment_type === 'salaried'" class="text-sm text-gray-600">/month</span>
+              </div>
             </div>
             <div>
               <div class="text-sm font-medium text-gray-500">Department</div>
@@ -40,8 +55,10 @@
               <div class="text-lg text-gray-900">{{ payrollData.employee?.position?.name || 'N/A' }}</div>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-500">Pay Frequency</div>
-              <div class="text-lg text-gray-900">{{ payrollData.employee?.pay_frequency || 'N/A' }}</div>
+              <div class="text-sm font-medium text-gray-500">Pay Period</div>
+              <div class="text-lg text-gray-900">
+                {{ formatDate(payrollData.payroll_period_start) }} - {{ formatDate(payrollData.payroll_period_end) }}
+              </div>
             </div>
             <div>
               <div class="text-sm font-medium text-gray-500">Inclusion Status</div>
@@ -49,6 +66,98 @@
                     class="px-2 py-1 text-xs font-medium rounded-full">
                 {{ payrollData.inclusion?.is_included ? 'Included' : 'Excluded' }}
               </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Details (Hourly vs Salaried) -->
+        <div v-if="!loading && payrollData?.calculation_details" class="bg-yellow-50 rounded-lg p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-3">Calculation Details</h3>
+          
+          <!-- Hourly Employee Details -->
+          <div v-if="payrollData.employment_type === 'hourly'" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <div class="text-sm font-medium text-gray-500">Total Hours</div>
+                <div class="text-xl font-bold text-gray-900">{{ payrollData.calculation_details.total_hours || 0 }}h</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-500">Regular Hours</div>
+                <div class="text-xl font-bold text-green-700">{{ payrollData.calculation_details.regular_hours || 0 }}h</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-500">Overtime Hours</div>
+                <div class="text-xl font-bold text-orange-600">{{ payrollData.calculation_details.overtime_hours || 0 }}h</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-500">Working Days</div>
+                <div class="text-xl font-bold text-gray-900">{{ payrollData.calculation_details.working_days || 0 }}</div>
+              </div>
+            </div>
+            
+            <div class="border-t pt-4">
+              <h4 class="text-md font-medium text-gray-900 mb-2">Pay Breakdown</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Regular Pay</div>
+                  <div class="text-lg font-semibold text-green-700">
+                    {{ formatCurrency(payrollData.calculation_details.regular_pay || 0) }}
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    {{ payrollData.calculation_details.regular_hours || 0 }}h × {{ formatCurrency(payrollData.calculation_details.hourly_rate || 0) }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Overtime Pay</div>
+                  <div class="text-lg font-semibold text-orange-600">
+                    {{ formatCurrency(payrollData.calculation_details.overtime_pay || 0) }}
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    {{ payrollData.calculation_details.overtime_hours || 0 }}h × {{ formatCurrency((payrollData.calculation_details.hourly_rate || 0) * (payrollData.calculation_details.overtime_multiplier || 1.5)) }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Overtime Multiplier</div>
+                  <div class="text-lg font-semibold text-gray-900">{{ payrollData.calculation_details.overtime_multiplier || 1.5 }}×</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salaried Employee Details -->
+          <div v-else-if="payrollData.employment_type === 'salaried'" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <div class="text-sm font-medium text-gray-500">Monthly Salary</div>
+                <div class="text-xl font-bold text-gray-900">{{ formatCurrency(payrollData.calculation_details.monthly_salary || 0) }}</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-500">Days in Month</div>
+                <div class="text-xl font-bold text-gray-900">{{ payrollData.calculation_details.days_in_month || 0 }}</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-500">Days in Period</div>
+                <div class="text-xl font-bold text-blue-700">{{ payrollData.calculation_details.days_in_period || 0 }}</div>
+              </div>
+              <div v-if="payrollData.calculation_details.is_partial_month">
+                <div class="text-sm font-medium text-gray-500">Proration Factor</div>
+                <div class="text-xl font-bold text-orange-600">{{ (payrollData.calculation_details.proration_factor * 100).toFixed(1) }}%</div>
+              </div>
+            </div>
+            
+            <div v-if="payrollData.calculation_details.is_partial_month" class="bg-orange-100 border border-orange-200 rounded p-3">
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-orange-700">
+                    <strong>Partial Month:</strong> Salary has been pro-rated for {{ payrollData.calculation_details.days_in_period }} days out of {{ payrollData.calculation_details.days_in_month }} days in the month.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -256,6 +365,7 @@ import { ref, onMounted, computed } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import api from '@/services/api'
 import { useNotifications } from '@/composables/useNotifications'
+import { useCurrency } from '@/composables/useCurrency'
 
 const props = defineProps({
   employee: {
@@ -313,6 +423,33 @@ const totalDeductions = computed(() => {
   const statutoryDeds = statutoryDeductions.value.reduce((sum, item) => sum + (item.amount || 0), 0)
   return regularDeductions + statutoryDeds
 })
+
+// Employment type utilities
+const getEmploymentTypeClass = (employmentType) => {
+  switch (employmentType) {
+    case 'hourly':
+      return 'bg-blue-100 text-blue-800'
+    case 'salaried':
+      return 'bg-green-100 text-green-800'
+    case 'contract':
+      return 'bg-yellow-100 text-yellow-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const formatEmploymentType = (employmentType) => {
+  switch (employmentType) {
+    case 'hourly':
+      return 'Hourly'
+    case 'salaried':
+      return 'Salaried'
+    case 'contract':
+      return 'Contract'
+    default:
+      return 'Unknown'
+  }
+}
 
 // Methods
 const loadEmployeePayrollData = async () => {
@@ -408,13 +545,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString()
 }
 
-const formatCurrency = (amount) => {
-  if (!amount) return '$0.00'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
+const { formatCurrency } = useCurrency()
 
 const getCalculationStatusClass = (status) => {
   const classes = {

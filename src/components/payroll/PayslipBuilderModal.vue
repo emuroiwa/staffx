@@ -77,7 +77,7 @@
               <CurrencyDollarIcon class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No payroll items</h3>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Add allowances or deductions to build this employee's payslip.{{ filteredPayrollItems }}
+                Add allowances or deductions to build this employee's payslip.
               </p>
             </div>
 
@@ -170,11 +170,19 @@
                 </button>
                 <button
                   @click="generatePayslip"
-                  :disabled="!canGeneratePayslip"
+                  :disabled="!canGeneratePayslip || loadingPreview"
                   class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <DocumentTextIcon class="w-4 h-4 mr-1" />
-                  Generate
+                  <DocumentTextIcon class="w-4 h-4 mr-1" :class="{ 'animate-spin': loadingPreview }" />
+                  {{ loadingPreview ? 'Generating...' : 'Download PDF' }}
+                </button>
+                <button
+                  @click="finalizePayslip"
+                  :disabled="!canFinalizePayslip"
+                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckIcon class="w-4 h-4 mr-1" />
+                  Finalize
                 </button>
               </div>
             </div>
@@ -676,6 +684,10 @@ const netSalary = computed(() => {
 })
 
 const canGeneratePayslip = computed(() => {
+  return props.employee && props.employee.salary && props.employee.salary > 0
+})
+
+const canFinalizePayslip = computed(() => {
   return props.employee && (allowances.value.length > 0 || deductions.value.length > 0)
 })
 
@@ -686,18 +698,48 @@ const loadPayrollItems = async () => {
 
   try {
     loading.value = true
-    const response = await get('/payroll/employee-payroll-data', {
-      params: {
-        employee_uuid: props.employee.uuid
+    console.log('Loading payroll items for employee:', props.employee.uuid)
+    
+    // Load both comprehensive payroll data and employee-specific payroll items
+    const [payrollDataResponse, employeeItemsResponse] = await Promise.all([
+      get('/payroll/employee-payroll-data', {
+        params: {
+          employee_uuid: props.employee.uuid
+        }
+      }),
+      get('/employee-payroll-items', {
+        params: {
+          employee_uuid: props.employee.uuid
+        }
+      })
+    ])
+    
+    // Extract payroll items from the comprehensive data
+    const payrollData = payrollDataResponse.data.data
+    const comprehensiveItems = payrollData.payroll_items || []
+    
+    console.log('Raw comprehensive payroll items:', comprehensiveItems)
+    
+    // Extract employee-specific payroll items from paginated response
+    const employeeItemsData = employeeItemsResponse.data.data?.data || []
+    
+    console.log('Raw employee-specific payroll items:', employeeItemsData)
+    
+    // Combine both sets of items, prioritizing employee-specific items
+    const allItems = [...comprehensiveItems]
+    
+    // Add employee-specific items that aren't already in the comprehensive list
+    employeeItemsData.forEach(employeeItem => {
+      const existingItem = allItems.find(item => item.uuid === employeeItem.uuid)
+      if (!existingItem) {
+        allItems.push(employeeItem)
       }
     })
     
-    // Extract payroll items from the comprehensive data
-    const data = response.data.data
-    const items = data.payroll_items || []
+    console.log('Combined payroll items:', allItems)
     
     // Filter out items with invalid UUIDs
-    payrollItems.value = items.filter(item => 
+    payrollItems.value = allItems.filter(item => 
       item && 
       item.uuid && 
       item.uuid !== null && 
@@ -706,9 +748,11 @@ const loadPayrollItems = async () => {
       typeof item.uuid === 'string'
     )
     
+    console.log('Filtered payroll items:', payrollItems.value)
+    
     // Also update statutory deductions if available
-    if (data.statutory_deductions) {
-      statutoryDeductions.value = data.statutory_deductions
+    if (payrollData.statutory_deductions) {
+      statutoryDeductions.value = payrollData.statutory_deductions
     }
   } catch (error) {
     console.error('Failed to load payroll items:', error)
@@ -830,6 +874,7 @@ const closePayrollItemModal = () => {
 }
 
 const handlePayrollItemSaved = () => {
+  console.log('Payroll item saved, refreshing preview...')
   refreshPreview()
   emit('saved')
 }
@@ -882,35 +927,109 @@ const toggleDeductionDetails = (deductionCode) => {
 
 const generatePayslip = async () => {
   try {
-    // Filter and validate payroll items before sending
-    const validPayrollItems = payrollItems.value.filter(item => 
-      item && 
-      item.status === 'active' && 
-      item.uuid && 
-      item.uuid !== null && 
-      item.uuid !== undefined && 
-      item.uuid !== ''
-    ).map(item => ({
-      uuid: item.uuid,
-      name: item.name,
-      type: item.type,
-      calculation_method: item.calculation_method,
-      amount: item.amount,
-      percentage: item.percentage,
-      calculated_amount: item.calculated_amount || getItemAmount(item)
-    }))
+    loadingPreview.value = true
     
-    await post('/payroll/generate-payslip', {
-      employee_uuid: props.employee.uuid,
-      payroll_items: validPayrollItems,
-      statutory_deductions: statutoryDeductions.value
+    // Step 1: Find or create a payroll record for this employee
+    let payrollUuid = null
+    
+    // First, try to find existing payroll records for this employee
+    const payrollsResponse = await get('/payrolls', {
+      params: {
+        employee_uuids: [props.employee.uuid],
+        status: 'draft,approved,processed'
+      }
     })
     
-    showNotification('Payslip generated successfully', 'success')
-    // Handle payslip download or display
+    const existingPayrolls = payrollsResponse.data.data || []
+    
+    if (existingPayrolls.length > 0) {
+      // Use the most recent payroll
+      payrollUuid = existingPayrolls[0].uuid
+    } else {
+      // Create a new payroll record first
+      const createPayrollResponse = await post('/payrolls', {
+        payroll_period_start: new Date().toISOString().split('T')[0] + '-01',
+        payroll_period_end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+        employee_uuids: [props.employee.uuid]
+      })
+      
+      if (!createPayrollResponse.data.success) {
+        throw new Error(createPayrollResponse.data.message || 'Failed to create payroll record')
+      }
+      
+      payrollUuid = createPayrollResponse.data.data.payroll.uuid
+    }
+    
+    // Step 2: Download the payslip PDF using the backend API
+    const response = await get(`/payslips/${payrollUuid}/download`, {
+      responseType: 'blob'
+    })
+    
+    // Create download link for the PDF
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    
+    // Generate filename with employee name and current date
+    const currentDate = new Date().toISOString().split('T')[0]
+    const employeeName = props.employee.display_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Employee'
+    const filename = `Payslip_${employeeName}_${currentDate}.pdf`
+    
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    
+    // Cleanup
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    showNotification('Payslip downloaded successfully', 'success')
   } catch (error) {
     console.error('Payslip generation error:', error)
     const errorMessage = error.response?.data?.message || 'Failed to generate payslip'
+    showNotification(errorMessage, 'error')
+  } finally {
+    loadingPreview.value = false
+  }
+}
+
+
+const finalizePayslip = async () => {
+  try {
+    // First, we need to get the payroll UUID for this employee
+    const payrollResponse = await get('/payrolls', {
+      params: { 
+        employee_uuids: [props.employee.uuid],
+        payslip_status: 'draft,in_progress,pending_approval,approved' // Exclude finalized
+      }
+    })
+    
+    const payrolls = payrollResponse.data.data || []
+    
+    if (payrolls.length === 0) {
+      showNotification('No payroll record found for this employee', 'warning')
+      return
+    }
+    
+    // Use the first payroll record (most recent)
+    const payroll = payrolls[0]
+    
+    // Check if payroll can be finalized
+    if (!payroll.can_finalize) {
+      showNotification('This payslip cannot be finalized at this time', 'warning')
+      return
+    }
+    
+    // Finalize the payslip
+    await post(`/payslips/${payroll.uuid}/finalize`)
+    
+    showNotification(`Payslip for ${props.employee.display_name} has been finalized`, 'success')
+    emit('saved') // Notify parent component
+    
+  } catch (error) {
+    console.error('Payslip finalization error:', error)
+    const errorMessage = error.response?.data?.message || 'Failed to finalize payslip'
     showNotification(errorMessage, 'error')
   }
 }

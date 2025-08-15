@@ -234,6 +234,7 @@ import { ref, onMounted, computed } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import api from '@/services/api'
 import { useNotifications } from '@/composables/useNotifications'
+import { useCurrency } from '@/composables/useCurrency'
 import EmployeePayrollDetailModal from './EmployeePayrollDetailModal.vue'
 
 const props = defineProps({
@@ -414,13 +415,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString()
 }
 
-const formatCurrency = (amount) => {
-  if (!amount) return '$0.00'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
+const { formatCurrency } = useCurrency()
 
 const getStatusClass = (status) => {
   const classes = {

@@ -80,9 +80,110 @@
                 :value="frequency.value"
                 type="checkbox"
                 class="rounded border-gray-300"
+                @change="validatePayslipStatus"
               />
               <span class="text-sm">{{ frequency.label }}</span>
             </label>
+          </div>
+        </div>
+
+        <!-- Payslip Status Summary -->
+        <div v-if="form.pay_frequencies.length > 0 && payslipValidation" class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Payslip Status Summary</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div v-for="frequency in form.pay_frequencies" :key="frequency" class="space-y-2">
+              <h4 class="font-medium text-gray-700 capitalize">{{ frequency.replace('_', ' ') }}</h4>
+              <div class="grid grid-cols-3 gap-2">
+                <!-- Finalized -->
+                <router-link 
+                  :to="{ 
+                    name: 'EmployeePayroll', 
+                    query: { 
+                      payslip_status: 'finalized', 
+                      pay_frequency: frequency 
+                    } 
+                  }"
+                  class="block bg-green-50 hover:bg-green-100 p-3 rounded-lg border border-green-200 transition-colors"
+                >
+                  <div class="text-2xl font-bold text-green-600">
+                    {{ payslipValidation.payslip_status_counts[frequency]?.finalized || 0 }}
+                  </div>
+                  <div class="text-sm text-green-600">Finalized</div>
+                </router-link>
+                
+                <!-- In Progress -->
+                <router-link 
+                  :to="{ 
+                    name: 'EmployeePayroll', 
+                    query: { 
+                      payslip_status: 'in_progress', 
+                      pay_frequency: frequency 
+                    } 
+                  }"
+                  class="block bg-yellow-50 hover:bg-yellow-100 p-3 rounded-lg border border-yellow-200 transition-colors"
+                >
+                  <div class="text-2xl font-bold text-yellow-600">
+                    {{ payslipValidation.payslip_status_counts[frequency]?.in_progress || 0 }}
+                  </div>
+                  <div class="text-sm text-yellow-600">In Progress</div>
+                </router-link>
+                
+                <!-- Draft -->
+                <router-link 
+                  :to="{ 
+                    name: 'EmployeePayroll', 
+                    query: { 
+                      payslip_status: 'draft', 
+                      pay_frequency: frequency 
+                    } 
+                  }"
+                  class="block bg-red-50 hover:bg-red-100 p-3 rounded-lg border border-red-200 transition-colors"
+                >
+                  <div class="text-2xl font-bold text-red-600">
+                    {{ payslipValidation.payslip_status_counts[frequency]?.draft || 0 }}
+                  </div>
+                  <div class="text-sm text-red-600">Draft</div>
+                </router-link>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Validation Message -->
+          <div v-if="!payslipValidation.can_create" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <ExclamationTriangleIcon class="h-5 w-5 text-red-400" />
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  Cannot create pay run
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc space-y-1 pl-5">
+                    <li v-for="error in payslipValidation.errors" :key="error">
+                      {{ error }}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Success Message -->
+          <div v-else class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <CheckCircleIcon class="h-5 w-5 text-green-400" />
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">
+                  All payslips are finalized
+                </h3>
+                <p class="mt-1 text-sm text-green-700">
+                  Pay run can be created for the selected frequencies.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -268,7 +369,7 @@
           </button>
           <button
             type="submit"
-            :disabled="saving"
+            :disabled="saving || (payslipValidation && !payslipValidation.can_create)"
             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
             {{ saving ? 'Saving...' : (isEdit ? 'Update Pay Run' : 'Create Pay Run') }}
@@ -281,8 +382,9 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
 import api from '@/services/api'
+import { payRunApi } from '@/services/payslipApi'
 import { useNotifications } from '@/composables/useNotifications'
 
 const props = defineProps({
@@ -303,6 +405,8 @@ const departments = ref([])
 const positions = ref([])
 const employeeSearch = ref('')
 const filteredEmployees = ref([])
+const payslipValidation = ref(null)
+const validationLoading = ref(false)
 
 const availableFrequencies = [
   { value: 'weekly', label: 'Weekly' },
@@ -374,6 +478,25 @@ const searchEmployees = () => {
   )
 }
 
+const validatePayslipStatus = async () => {
+  if (!form.value.pay_frequencies || form.value.pay_frequencies.length === 0) {
+    payslipValidation.value = null
+    return
+  }
+  
+  try {
+    validationLoading.value = true
+    const response = await payRunApi.validateCreation(form.value.pay_frequencies)
+    payslipValidation.value = response.data
+  } catch (error) {
+    console.error('Error validating payslip status:', error)
+    showError('Failed to validate payslip status')
+    payslipValidation.value = null
+  } finally {
+    validationLoading.value = false
+  }
+}
+
 const save = async () => {
   saving.value = true
   
@@ -409,8 +532,14 @@ watch(() => props.payRun, (newPayRun) => {
   }
 }, { immediate: true })
 
+// Watch pay frequencies to validate payslip status
+watch(() => form.value.pay_frequencies, () => {
+  validatePayslipStatus()
+}, { deep: true })
+
 // Lifecycle
 onMounted(() => {
   loadData()
+  validatePayslipStatus()
 })
 </script>

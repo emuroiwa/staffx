@@ -274,6 +274,7 @@ import PayRunModal from '@/components/payroll/PayRunModal.vue'
 import PayRunDetailModal from '@/components/payroll/PayRunDetailModal.vue'
 import api from '@/services/api'
 import { useNotifications } from '@/composables/useNotifications'
+import { useCurrency } from '@/composables/useCurrency'
 
 const { showSuccess, showError } = useNotifications()
 
@@ -469,13 +470,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString()
 }
 
-const formatCurrency = (amount) => {
-  if (!amount) return '$0.00'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
+const { formatCurrency } = useCurrency()
 
 const getStatusClass = (status) => {
   const classes = {

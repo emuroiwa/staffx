@@ -218,13 +218,18 @@
                   v-model="form.employment_type"
                   id="employment_type"
                   required
+                  @change="onEmploymentTypeChange"
                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
                 >
-                  <option value="full_time">Full Time</option>
-                  <option value="part_time">Part Time</option>
+                  <option value="salaried">Salaried</option>
+                  <option value="hourly">Hourly</option>
                   <option value="contract">Contract</option>
-                  <option value="intern">Intern</option>
                 </select>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <span v-if="form.employment_type === 'salaried'">Monthly salary payment</span>
+                  <span v-else-if="form.employment_type === 'hourly'">Paid by hours worked with overtime</span>
+                  <span v-else>Contract-based payment</span>
+                </p>
               </div>
 
               <div>
@@ -313,9 +318,10 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Salary/Hourly Rate -->
               <div>
                 <label for="salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Salary <span class="text-red-500">*</span>
+                  {{ salaryLabel }} <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -327,14 +333,68 @@
                     id="salary"
                     required
                     min="0"
+                    :step="form.employment_type === 'hourly' ? '0.01' : '1'"
                     step="0.01"
                     class="block w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
                     :class="{ 'border-red-300': errors.salary }"
                   />
                 </div>
                 <p v-if="errors.salary" class="mt-1 text-sm text-red-600">{{ errors.salary[0] }}</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {{ salaryHelpText }}
+                </p>
               </div>
 
+              <!-- Hourly-specific fields -->
+              <div v-if="form.employment_type === 'hourly'">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overtime Eligible</label>
+                <div class="flex items-center space-x-4">
+                  <label class="flex items-center">
+                    <input
+                      v-model="form.overtime_eligible"
+                      type="radio"
+                      :value="true"
+                      class="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input
+                      v-model="form.overtime_eligible"
+                      type="radio"
+                      :value="false"
+                      class="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">No</span>
+                  </label>
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Whether this employee is eligible for overtime pay
+                </p>
+              </div>
+
+              <div v-if="form.employment_type === 'hourly' && form.overtime_eligible">
+                <label for="overtime_rate_multiplier" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Overtime Rate Multiplier
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="form.overtime_rate_multiplier"
+                    type="number"
+                    id="overtime_rate_multiplier"
+                    min="1"
+                    max="3"
+                    step="0.1"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200"
+                  />
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">×</span>
+                  </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Overtime rate multiplier (e.g., 1.5 for time and a half)
+                </p>
+              </div>
 
               <div>
                 <label for="pay_frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pay Frequency</label>
@@ -610,7 +670,7 @@ const form = reactive({
   department_uuid: '',
   position_uuid: '',
   manager_uuid: '',
-  employment_type: 'full_time',
+  employment_type: 'salaried',
   status: 'active',
   start_date: '',
   hire_date: '',
@@ -619,6 +679,8 @@ const form = reactive({
   is_uif_exempt: false,
   salary: '',
   pay_frequency: 'monthly',
+  overtime_eligible: true,
+  overtime_rate_multiplier: 1.5,
   tax_number: '',
   national_id: '',
   passport_number: '',
@@ -654,8 +716,55 @@ const canProceed = computed(() => {
   }
 })
 
+// Computed properties for employment type handling
+const salaryLabel = computed(() => {
+  switch (form.employment_type) {
+    case 'hourly':
+      return 'Hourly Rate'
+    case 'salaried':
+      return 'Monthly Salary'
+    case 'contract':
+      return 'Contract Rate'
+    default:
+      return 'Salary'
+  }
+})
+
+const salaryHelpText = computed(() => {
+  switch (form.employment_type) {
+    case 'hourly':
+      return 'Rate paid per hour worked'
+    case 'salaried':
+      return 'Fixed monthly salary amount'
+    case 'contract':
+      return 'Contract payment amount'
+    default:
+      return 'Employee compensation amount'
+  }
+})
 
 // Methods
+const onEmploymentTypeChange = () => {
+  // Reset hourly-specific fields when employment type changes
+  if (form.employment_type !== 'hourly') {
+    form.overtime_eligible = false
+    form.overtime_rate_multiplier = 1.5
+  } else {
+    form.overtime_eligible = true
+    form.overtime_rate_multiplier = 1.5
+  }
+  
+  // Adjust pay frequency defaults
+  if (form.employment_type === 'hourly') {
+    form.pay_frequency = 'weekly'
+  } else if (form.employment_type === 'salaried') {
+    form.pay_frequency = 'monthly'
+  }
+  
+  // Clear salary field to avoid confusion
+  form.salary = ''
+}
+
 const getStepClass = (stepNumber) => {
   if (stepNumber < currentStep.value) {
     return 'text-green-600'

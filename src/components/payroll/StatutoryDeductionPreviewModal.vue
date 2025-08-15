@@ -199,6 +199,7 @@ import { ref, computed, onMounted } from 'vue'
 import { XMarkIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import api from '@/services/api'
 import statutoryDeductionService from '@/services/statutoryDeductionService'
+import { useCurrency } from '@/composables/useCurrency'
 
 export default {
   name: 'StatutoryDeductionPreviewModal',
@@ -262,13 +263,7 @@ export default {
       }
     }
 
-    const formatCurrency = (amount) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD', // This should be dynamic based on company currency
-        minimumFractionDigits: 2
-      }).format(amount)
-    }
+    const { formatCurrency } = useCurrency()
 
     onMounted(() => {
       loadEmployees()

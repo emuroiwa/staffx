@@ -65,6 +65,10 @@ export interface CompanySettings {
   pay_frequency?: 'weekly' | 'bi_weekly' | 'monthly' | 'semi_monthly'
   pay_period_start_day?: number
   default_work_hours?: number
+  overtime_threshold_hours?: number
+  default_overtime_multiplier?: number
+  require_overtime_approval?: boolean
+  enable_time_tracking?: boolean
   
   // Employee settings
   auto_generate_employee_id?: boolean
@@ -104,8 +108,11 @@ export interface Currency {
 
 export interface Employee {
   id: number
+  uuid?: string
   company_id: number
+  company_uuid?: string
   user_id?: number | null
+  user_uuid?: string | null
   employee_id: string
   first_name: string
   last_name: string
@@ -113,35 +120,61 @@ export interface Employee {
   phone?: string | null
   department?: string | null
   position?: string | null
-  employment_type?: 'full_time' | 'part_time' | 'contract' | null
-  salary?: number | null
+  employment_type?: 'salaried' | 'hourly' | 'contract' | null
+  salary?: number | null // For salaried: monthly salary, for hourly: hourly rate
+  hourly_rate?: number | null // Alias for salary when employment_type is hourly
   currency_uuid?: string | null
   currency?: Currency | null
   formatted_salary?: string
   hire_date?: string | null
+  start_date?: string | null
   termination_date?: string | null
   status: 'active' | 'inactive' | 'terminated'
+  work_schedule?: WorkSchedule | null
+  overtime_eligible?: boolean
+  overtime_rate_multiplier?: number
+  pay_frequency?: 'weekly' | 'bi_weekly' | 'monthly' | 'semi_monthly'
   created_at: string
   updated_at: string
   user?: any
   company?: Company
   payrolls?: Payroll[]
+  work_hours?: WorkHours[]
 }
 
 export interface Payroll {
   id: number
+  uuid?: string
   company_id: number
+  company_uuid?: string
   employee_id: number
+  employee_uuid?: string
   pay_period_start: string
   pay_period_end: string
+  payroll_period_start?: string
+  payroll_period_end?: string
+  employment_type?: string
+  basic_salary?: number
   gross_pay: number
+  gross_salary?: number
   net_pay: number
+  net_salary?: number
+  total_allowances?: number
+  total_deductions?: number
+  total_statutory_deductions?: number
+  total_garnishments?: number
+  total_employer_contributions?: number
+  disposable_income?: number
   tax_deductions?: number | null
   other_deductions?: number | null
   overtime_hours?: number | null
   overtime_pay?: number | null
-  status: 'draft' | 'processed' | 'paid'
+  status: 'draft' | 'approved' | 'processed' | 'paid'
   notes?: string | null
+  calculation_details?: PayrollCalculationDetails
+  payroll_items?: PayrollItems
+  calculation_date?: string
+  errors?: string[]
   created_at: string
   updated_at: string
   employee?: Employee
@@ -163,4 +196,127 @@ export interface PaginatedResponse<T> {
   total: number
   from: number
   to: number
+}
+
+// Enhanced payroll calculation types
+export interface PayrollCalculationDetails {
+  employment_type: string
+  period_days: number
+  // For hourly employees
+  hourly_rate?: number
+  total_hours?: number
+  regular_hours?: number
+  overtime_hours?: number
+  overtime_multiplier?: number
+  regular_pay?: number
+  overtime_pay?: number
+  working_days?: number
+  // For salaried employees
+  monthly_salary?: number
+  days_in_month?: number
+  days_in_period?: number
+  is_partial_month?: boolean
+  proration_factor?: number
+}
+
+export interface PayrollItems {
+  allowances: {
+    company: PayrollItem[]
+    employee: PayrollItem[]
+  }
+  deductions: {
+    company: PayrollItem[]
+    statutory: PayrollItem[]
+    employee: PayrollItem[]
+    garnishments: PayrollItem[]
+  }
+  employer_contributions: {
+    company: PayrollItem[]
+  }
+}
+
+export interface PayrollItem {
+  uuid?: string
+  template_uuid?: string
+  item_uuid?: string
+  code: string
+  name: string
+  type: 'allowance' | 'deduction' | 'employer_contribution'
+  amount: number
+  calculation_method?: string
+  calculation_details?: any
+}
+
+export interface WorkSchedule {
+  id?: number
+  uuid?: string
+  employee_uuid: string
+  name: string
+  monday_hours?: number
+  tuesday_hours?: number
+  wednesday_hours?: number
+  thursday_hours?: number
+  friday_hours?: number
+  saturday_hours?: number
+  sunday_hours?: number
+  weekly_hours: number
+  is_active: boolean
+  effective_from: string
+  effective_to?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface WorkHours {
+  id?: number
+  uuid?: string
+  employee_uuid: string
+  date: string
+  clock_in?: string | null
+  clock_out?: string | null
+  break_duration?: number // in minutes
+  total_hours: number
+  regular_hours: number
+  overtime_hours: number
+  status: 'pending' | 'approved' | 'rejected'
+  notes?: string | null
+  approved_by?: string | null
+  approved_at?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OvertimeRequest {
+  id?: number
+  uuid?: string
+  employee_uuid: string
+  date: string
+  requested_hours: number
+  reason: string
+  status: 'pending' | 'approved' | 'rejected'
+  requested_by: string
+  reviewed_by?: string | null
+  reviewed_at?: string | null
+  notes?: string | null
+  created_at?: string
+  updated_at?: string
+  employee?: Employee
+}
+
+export interface TimeEntry {
+  id?: number
+  uuid?: string
+  employee_uuid: string
+  date: string
+  start_time: string
+  end_time?: string | null
+  break_start?: string | null
+  break_end?: string | null
+  total_hours?: number
+  description?: string
+  project?: string
+  task?: string
+  status: 'active' | 'completed' | 'approved'
+  created_at?: string
+  updated_at?: string
 }

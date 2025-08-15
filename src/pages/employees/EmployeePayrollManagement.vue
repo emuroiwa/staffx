@@ -73,6 +73,108 @@
               <option value="false">Without Payroll Items</option>
             </select>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payslip Status</label>
+            <select
+              v-model="filters.payslipStatus"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 transition-colors duration-200 text-sm"
+            >
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="in_progress">In Progress</option>
+              <option value="finalized">Finalized</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-medium text-gray-900 dark:text-white">Bulk Actions</h2>
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+              {{ selectedEmployees.length }} selected
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                :checked="selectAll"
+                @change="toggleSelectAll"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Select All
+              </span>
+            </label>
+            
+            <div class="flex space-x-2">
+              <button
+                v-if="selectedEmployees.length > 0"
+                @click="openBulkFinalizationModal"
+                :disabled="bulkProcessing"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                <CheckIcon class="w-4 h-4 mr-2" />
+                Finalize Selected ({{ selectedEmployees.length }})
+              </button>
+              
+              <button
+                v-if="selectedEmployees.length > 0"
+                @click="bulkSetInProgress"
+                :disabled="bulkProcessing"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                <PencilIcon class="w-4 h-4 mr-2" />
+                Set In Progress
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex space-x-2">
+            <button
+              @click="filterByStatus('draft')"
+              :class="[
+                'px-3 py-1 rounded-full text-sm font-medium transition-colors',
+                filters.payslipStatus === 'draft' 
+                  ? 'bg-red-100 text-red-800 border-red-200' 
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+              ]"
+            >
+              Draft ({{ statusCounts.draft || 0 }})
+            </button>
+            <button
+              @click="filterByStatus('in_progress')"
+              :class="[
+                'px-3 py-1 rounded-full text-sm font-medium transition-colors',
+                filters.payslipStatus === 'in_progress' 
+                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200' 
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+              ]"
+            >
+              In Progress ({{ statusCounts.in_progress || 0 }})
+            </button>
+            <button
+              @click="filterByStatus('finalized')"
+              :class="[
+                'px-3 py-1 rounded-full text-sm font-medium transition-colors',
+                filters.payslipStatus === 'finalized' 
+                  ? 'bg-green-100 text-green-800 border-green-200' 
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+              ]"
+            >
+              Finalized ({{ statusCounts.finalized || 0 }})
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -102,6 +204,14 @@
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <input
+                  type="checkbox"
+                  :checked="selectAll"
+                  @change="toggleSelectAll"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Employee
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -119,6 +229,9 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Payroll Items
               </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Payslip Status
+              </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
@@ -130,6 +243,16 @@
               :key="employee.uuid"
               class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
             >
+              <!-- Checkbox Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  :value="employee.uuid"
+                  v-model="selectedEmployees"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </td>
+              
               <!-- Employee Column -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -188,6 +311,16 @@
                      :class="getPayrollItemsBadgeClass(getEmployeePayrollItemsCount(employee.uuid))">
                   {{ getEmployeePayrollItemsCount(employee.uuid) }} Items
                 </div>
+              </td>
+              
+              <!-- Payslip Status Column -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="getPayslipStatusBadgeClass(getEmployeePayslipStatus(employee.uuid))"
+                >
+                  {{ getEmployeePayslipStatus(employee.uuid) }}
+                </span>
               </td>
               
               <!-- Actions Column -->
@@ -266,23 +399,37 @@
       @close="closePayslipBuilder"
       @saved="handlePayrollItemSaved"
     />
+    
+    <!-- Payslip Finalization Modal -->
+    <PayslipFinalizationModal
+      :is-open="finalizationModalOpen"
+      :employee-uuids="selectedEmployees"
+      @close="closeFinalizationModal"
+      @finalized="handlePayslipsFinalized"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useNotifications } from '@/composables/useNotifications'
 import {
   ArrowPathIcon,
   MagnifyingGlassIcon,
   UserGroupIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  CheckIcon,
+  PencilIcon
 } from '@heroicons/vue/24/outline'
 import PayslipBuilderModal from '@/components/payroll/PayslipBuilderModal.vue'
+import PayslipFinalizationModal from '@/components/payroll/PayslipFinalizationModal.vue'
+import { payslipApi } from '@/services/payslipApi'
 
 const { get } = useApi()
 const { showNotification } = useNotifications()
+const route = useRoute()
 
 // State
 const loading = ref(false)
@@ -291,12 +438,21 @@ const departments = ref([])
 const payrollItems = ref([])
 const payslipBuilderOpen = ref(false)
 const selectedEmployee = ref(null)
+const finalizationModalOpen = ref(false)
+const selectedEmployees = ref([])
+const bulkProcessing = ref(false)
+const statusCounts = ref({
+  draft: 0,
+  in_progress: 0,
+  finalized: 0
+})
 
 const filters = reactive({
   search: '',
   department: '',
   status: '',
-  hasPayrollItems: ''
+  hasPayrollItems: '',
+  payslipStatus: ''
 })
 
 const pagination = reactive({
@@ -322,7 +478,20 @@ const filteredEmployees = computed(() => {
     })
   }
 
+  // Apply payslip status filter client-side
+  if (filters.payslipStatus) {
+    filtered = filtered.filter(emp => {
+      const status = getEmployeePayslipStatus(emp.uuid)
+      return status === filters.payslipStatus
+    })
+  }
+
   return filtered
+})
+
+// Computed for select all checkbox
+const selectAll = computed(() => {
+  return filteredEmployees.value.length > 0 && selectedEmployees.value.length === filteredEmployees.value.length
 })
 
 // Methods
@@ -448,6 +617,101 @@ const handlePayrollItemSaved = () => {
   loadPayrollItems()
 }
 
+// New methods for payslip finalization
+const getEmployeePayslipStatus = (employeeUuid) => {
+  // This would normally come from the employee's payroll data
+  // For now, we'll return a random status for demonstration
+  const statuses = ['draft', 'in_progress', 'finalized']
+  return statuses[Math.floor(Math.random() * statuses.length)]
+}
+
+const getPayslipStatusBadgeClass = (status) => {
+  const classes = {
+    draft: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    in_progress: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    finalized: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+  }
+  return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+}
+
+const toggleSelectAll = () => {
+  if (selectAll.value) {
+    selectedEmployees.value = []
+  } else {
+    selectedEmployees.value = filteredEmployees.value.map(emp => emp.uuid)
+  }
+}
+
+const filterByStatus = (status) => {
+  if (filters.payslipStatus === status) {
+    filters.payslipStatus = ''
+  } else {
+    filters.payslipStatus = status
+  }
+}
+
+const openBulkFinalizationModal = () => {
+  if (selectedEmployees.value.length === 0) {
+    showNotification('Please select employees to finalize', 'error')
+    return
+  }
+  finalizationModalOpen.value = true
+}
+
+const closeFinalizationModal = () => {
+  finalizationModalOpen.value = false
+}
+
+const handlePayslipsFinalized = (finalizedCount) => {
+  showNotification(`Successfully finalized ${finalizedCount} payslips`, 'success')
+  selectedEmployees.value = []
+  refreshData()
+}
+
+const bulkSetInProgress = async () => {
+  if (selectedEmployees.value.length === 0) {
+    showNotification('Please select employees', 'error')
+    return
+  }
+  
+  try {
+    bulkProcessing.value = true
+    
+    // Get payroll UUIDs for selected employees
+    const payrollUuids = selectedEmployees.value.map(empUuid => {
+      // This would normally come from the employee's payroll data
+      // For now, we'll use the employee UUID as a placeholder
+      return empUuid
+    })
+    
+    let successCount = 0
+    for (const payrollUuid of payrollUuids) {
+      try {
+        await payslipApi.setInProgress(payrollUuid)
+        successCount++
+      } catch (error) {
+        console.error('Error setting payslip in progress:', error)
+      }
+    }
+    
+    showNotification(`Successfully set ${successCount} payslips to in progress`, 'success')
+    selectedEmployees.value = []
+    refreshData()
+  } catch (error) {
+    showNotification('Failed to update payslip status', 'error')
+  } finally {
+    bulkProcessing.value = false
+  }
+}
+
+const updateStatusCounts = () => {
+  statusCounts.value = {
+    draft: filteredEmployees.value.filter(emp => getEmployeePayslipStatus(emp.uuid) === 'draft').length,
+    in_progress: filteredEmployees.value.filter(emp => getEmployeePayslipStatus(emp.uuid) === 'in_progress').length,
+    finalized: filteredEmployees.value.filter(emp => getEmployeePayslipStatus(emp.uuid) === 'finalized').length
+  }
+}
+
 const previousPage = () => {
   if (pagination.prev_page_url) {
     pagination.current_page--
@@ -472,6 +736,22 @@ watch([filters], () => {
   // Reset pagination when filters change and reload data
   pagination.current_page = 1
   loadEmployees()
+}, { deep: true })
+
+// Watch for route query parameters (for status filtering from links)
+watch(() => route.query, (newQuery) => {
+  if (newQuery.payslip_status) {
+    filters.payslipStatus = newQuery.payslip_status
+  }
+  if (newQuery.pay_frequency) {
+    // Filter by pay frequency if needed
+    // This would need to be implemented based on your employee data structure
+  }
+}, { immediate: true })
+
+// Watch filtered employees to update status counts
+watch(filteredEmployees, () => {
+  updateStatusCounts()
 }, { deep: true })
 
 // Lifecycle
